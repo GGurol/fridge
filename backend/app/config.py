@@ -1,3 +1,5 @@
+import secrets
+
 from pydantic import (
     PostgresDsn,
     computed_field,
@@ -14,6 +16,9 @@ class Settings(BaseSettings):
         extra="ignore",
     )
     API_STR: str = "/api"
+    SECRET_KEY: str = secrets.token_urlsafe(32)
+    # 60 minutes * 24 hours * 1 days = 1 days
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 1
 
     PROJECT_NAME: str
 
