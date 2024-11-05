@@ -11,6 +11,11 @@ class UserBase(SQLModel):
     is_admin: bool = False
 
 
+# Properties to receive via API on creation
+class UserCreate(UserBase):
+    password: str = Field(min_length=8, max_length=40)
+
+
 # Database model, database table inferred from class name
 class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)

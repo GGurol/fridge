@@ -28,6 +28,11 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str = ""
     POSTGRES_DB: str = ""
 
+    ADMIN_USER: str
+    ADMIN_USER_PASSWORD: str
+    TEST_USER: str
+    TEST_USER_PASSWORD: str
+
     @computed_field
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:

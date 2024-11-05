@@ -13,7 +13,8 @@ alembic = "^1.13.3"
 sqlmodel = "^0.0.22"
 psycopg = {extras = ["binary"], version = "^3.2.3"}
 pyjwt = "^2.9.0"
-passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+passlib = {version = ">=1.7.4,<2.0.0", extras = ["bcrypt"]}
+tenacity = "^9.0.0"
 
 
 [build-system]
