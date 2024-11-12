@@ -27,7 +27,7 @@ def init_db(session: Session) -> None:
     if not admin_user:
         user_in = UserCreate(
             email=settings.ADMIN_USER,
-            password=settings.ADMIN_USER,
+            password=settings.ADMIN_USER_PASSWORD,
             is_admin=True,
         )
         _ = crud.create_user(session=session, user_create=user_in)
@@ -38,6 +38,6 @@ def init_db(session: Session) -> None:
     if not test_user:
         user_in = UserCreate(
             email=settings.TEST_USER,
-            password=settings.TEST_USER,
+            password=settings.TEST_USER_PASSWORD,
         )
         _ = crud.create_user(session=session, user_create=user_in)
