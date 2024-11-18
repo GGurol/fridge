@@ -1,16 +1,41 @@
 import uuid
 
 from pydantic import EmailStr
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
+
+
+class FamilyBase(SQLModel):
+    """
+    Base class for family data with shared properties.
+    """
+
+    name: str
+    invite_code: str
+
+
+class Family(FamilyBase, table=True):
+    """
+    Database model for a family, including an ID and relationships with family members.
+    """
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+
+    members: list["User"] = Relationship(back_populates="family")
+
+
+class FamilyPublic(FamilyBase):
+    """Class for family data to be returned via API"""
+
+    id: uuid.UUID
 
 
 class UserBase(SQLModel):
     """
-    Base class for user data with shared properties such as email, full name, and admin status.
+    Base class for user data with shared properties.
     """
 
     email: EmailStr = Field(unique=True, index=True, max_length=255)
-    full_name: str | None = Field(default=None, max_length=255)
+    name: str | None = Field(default=None, max_length=255)
     is_admin: bool = False
 
 
@@ -35,6 +60,9 @@ class User(UserBase, table=True):
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
+
+    family_id: uuid.UUID | None = Field(default=None, foreign_key="family.id")
+    family: Family | None = Relationship(back_populates="members")
 
 
 class Token(SQLModel):

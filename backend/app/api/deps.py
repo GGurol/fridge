@@ -17,6 +17,10 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_STR}/login/access-
 
 
 def get_db() -> Generator[Session, None, None]:
+    """
+    Generates a new database session for dependency injection.
+    """
+
     with Session(engine) as session:
         yield session
 
@@ -25,8 +29,11 @@ SessionDep = Annotated[Session, Depends(get_db)]
 TokenDep = Annotated[str, Depends(oauth2_scheme)]
 
 
-def get_current_user(session: SessionDep, token: TokenDep):
-    print(token)
+def get_current_user(session: SessionDep, token: TokenDep) -> User:
+    """
+    Retrieves the current authenticated user based on the provided JWT token.
+    """
+
     try:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
@@ -52,6 +59,10 @@ CurrentUserDep = Annotated[User, Depends(get_current_user)]
 def get_current_admin(
     current_user: CurrentUserDep,
 ):
+    """
+    Checks if the current user is an admin, raising an exception if not.
+    """
+
     if current_user.is_admin:
         raise HTTPException(
             status_code=403, detail="The user doesn't have enough privileges"

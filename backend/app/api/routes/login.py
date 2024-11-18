@@ -16,6 +16,10 @@ router = APIRouter()
 def login_access_token(
     session: SessionDep, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
 ) -> Token:
+    """
+    Authenticates a user and returns an access token if credentials are correct.
+    """
+
     user = crud.authenticate(
         session=session, email=form_data.username, password=form_data.password
     )
