@@ -91,6 +91,14 @@ def join_family(*, session: Session, db_user: User, family_id: uuid.UUID) -> Use
     return db_user
 
 
+def complete_task(*, session: Session, db_task: Task) -> Task:
+    db_task.sqlmodel_update({"completed": True})
+    session.add(db_task)
+    session.commit()
+    session.refresh(db_task)
+    return db_task
+
+
 def authenticate(*, session: Session, email: str, password: str) -> User | None:
     """
     Authenticates a user by checking the provided email and password against the database.
@@ -116,12 +124,22 @@ def get_user_by_email(*, session: Session, email: str) -> User | None:
 
 def get_user_by_id(*, session: Session, id: uuid.UUID) -> User | None:
     """
-    Fetches a user from the database by their email address.
+    Fetches a user from the database by their id.
     """
 
     statement = select(User).where(User.id == id)
     session_user = session.exec(statement).first()
     return session_user
+
+
+def get_task_by_id(*, session: Session, id: uuid.UUID) -> Task | None:
+    """
+    Fetches a task from the database by their id.
+    """
+
+    statement = select(Task).where(Task.id == id)
+    session_task = session.exec(statement).first()
+    return session_task
 
 
 def get_family_by_invite_code(*, session: Session, invite_code: str) -> Family | None:

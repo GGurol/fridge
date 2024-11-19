@@ -1,3 +1,4 @@
+import uuid
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
@@ -43,3 +44,23 @@ def create_task(
         )
 
     return crud.create_task(session=session, task_in=task_in, user_id=current_user.id)
+
+
+@router.patch("/{id}", response_model=Task)
+def complete_task(
+    session: SessionDep,
+    current_user: CurrentUserDep,
+    id: uuid.UUID,
+):
+    task = crud.get_task_by_id(session=session, id=id)
+
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    if task.user_id != current_user.id:
+        raise HTTPException(
+            status_code=400,
+            detail="Not enough permissions to complete another user's task",
+        )
+
+    return crud.complete_task(session=session, db_task=task)
