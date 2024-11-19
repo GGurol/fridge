@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
@@ -63,6 +64,32 @@ class User(UserBase, table=True):
 
     family_id: uuid.UUID | None = Field(default=None, foreign_key="family.id")
     family: Family | None = Relationship(back_populates="members")
+
+    tasks: list["Task"] = Relationship(back_populates="user")
+
+
+class TaskBase(SQLModel):
+    title: str = Field(min_length=1, max_length=255)
+    notes: str | None = Field(default=None, max_length=255)
+    completed: bool = False
+
+
+class TaskCreate(TaskBase):
+    user_id: uuid.UUID | None = Field(default=None)
+
+
+class Task(TaskBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+    user_id: uuid.UUID = Field(foreign_key="user.id")
+    user: User = Relationship(back_populates="tasks")
+
+
+class TasksPublic(SQLModel):
+    data: list[Task]
+    count: int
 
 
 class Token(SQLModel):
