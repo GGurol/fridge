@@ -1,10 +1,11 @@
+import uuid
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
 
-from app.api.deps import CurrentUserDep, SessionDep
+from app.api.deps import CurrentAdminDep, CurrentUserDep, SessionDep
 from app.core import crud
-from app.core.models import UserCreate, UserPublic
+from app.core.models import Message, UserCreate, UserPublic
 
 router = APIRouter()
 
@@ -31,3 +32,18 @@ def register_user(session: SessionDep, user_in: UserCreate) -> Any:
         )
     user_create = UserCreate.model_validate(user_in)
     return crud.create_user(session=session, user_create=user_create)
+
+
+@router.post("/promote/{user_id}", response_model=Message)
+def promote_user(
+    session: SessionDep, current_admin: CurrentAdminDep, user_id: uuid.UUID
+) -> Any:
+    db_user = crud.get_user_by_id(session=session, id=user_id)
+
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    crud.promote_user_to_admin(session=session, db_user=db_user)
+    crud.demote_admin_to_user(session=session, db_admin_user=current_admin)
+
+    return Message(message="User promoted to admin successfully")

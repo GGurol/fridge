@@ -95,7 +95,7 @@ def create_family(*, session: Session, name: str, db_user: User) -> Family:
     return db_family
 
 
-def promote_user_to_admin(*, session, db_user: User) -> User:
+def promote_user_to_admin(*, session: Session, db_user: User) -> User:
     db_user.sqlmodel_update({"is_admin": True})
     session.add(db_user)
     session.commit()
@@ -107,7 +107,7 @@ def demote_admin_to_user(*, session: Session, db_admin_user: User) -> User:
     db_admin_user.sqlmodel_update({"is_admin": False})
     session.add(db_admin_user)
     session.commit()
-    session.refresh()
+    session.refresh(db_admin_user)
     return db_admin_user
 
 
