@@ -3,7 +3,17 @@ import uuid
 from sqlmodel import Session, func, select
 
 from app.core import security
-from app.core.models import Family, Task, TaskCreate, TasksPublic, User, UserCreate
+from app.core.models import (
+    Family,
+    List,
+    ListCreate,
+    ListUpdate,
+    Task,
+    TaskCreate,
+    TasksPublic,
+    User,
+    UserCreate,
+)
 from app.core.utils import generate_invite_code
 
 
@@ -23,11 +33,21 @@ def create_user(*, session: Session, user_create: UserCreate) -> User:
 
 
 def create_task(*, session: Session, task_in: TaskCreate, user_id: uuid.UUID) -> Task:
-    task = Task.model_validate(task_in, update={"user_id": user_id})
-    session.add(task)
+    db_task = Task.model_validate(task_in, update={"user_id": user_id})
+    session.add(db_task)
     session.commit()
-    session.refresh(task)
-    return task
+    session.refresh(db_task)
+    return db_task
+
+
+def create_list(
+    *, session: Session, list_in: ListCreate, relationship_data: dict
+) -> List:
+    db_list = List.model_validate(list_in, update=relationship_data)
+    session.add(db_list)
+    session.commit()
+    session.refresh(db_list)
+    return db_list
 
 
 def read_user_tasks(
@@ -81,6 +101,15 @@ def promote_user_to_admin(*, session, db_user: User) -> User:
     session.commit()
     session.refresh(db_user)
     return db_user
+
+
+def update_list(*, session: Session, db_list: List, list_in: ListUpdate) -> List:
+    list_data = list_in.model_dump(exclude_unset=True)
+    db_list.sqlmodel_update(list_data)
+    session.add(db_list)
+    session.commit()
+    session.refresh(db_list)
+    return db_list
 
 
 def join_family(*, session: Session, db_user: User, family_id: uuid.UUID) -> User:
@@ -138,6 +167,16 @@ def get_task_by_id(*, session: Session, id: uuid.UUID) -> Task | None:
     """
 
     statement = select(Task).where(Task.id == id)
+    session_task = session.exec(statement).first()
+    return session_task
+
+
+def get_list_by_id(*, session: Session, id: uuid.UUID) -> List | None:
+    """
+    Fetches a task from the database by their id.
+    """
+
+    statement = select(List).where(List.id == id)
     session_task = session.exec(statement).first()
     return session_task
 

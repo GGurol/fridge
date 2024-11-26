@@ -22,6 +22,7 @@ class Family(FamilyBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
 
     members: list["User"] = Relationship(back_populates="family")
+    lists: list["List"] = Relationship(back_populates="family")
 
 
 class FamilyPublic(FamilyBase):
@@ -66,6 +67,45 @@ class User(UserBase, table=True):
     family: Family | None = Relationship(back_populates="members")
 
     tasks: list["Task"] = Relationship(back_populates="user")
+    lists: list["List"] = Relationship(back_populates="user")
+
+
+class ListBase(SQLModel):
+    name: str = Field(min_length=1, max_length=255)
+    is_family_list: bool = False
+    color: str = Field(
+        min_length=7, max_length=7, description="Hex color code in the format #1138CC"
+    )
+
+
+class ListCreate(ListBase):
+    pass
+
+
+class ListUpdate(ListBase):
+    name: str | None = Field(default=None, min_length=1, max_length=255)
+    color: str | None = Field(
+        default=None,
+        min_length=7,
+        max_length=7,
+        description="Hex color code in the format #1138CC",
+    )
+
+
+class ListPublic(ListBase):
+    id: uuid.UUID
+
+
+class List(ListBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+
+    user_id: uuid.UUID | None = Field(default=None, foreign_key="user.id")
+    user: User | None = Relationship(back_populates="lists")
+
+    family_id: uuid.UUID | None = Field(default=None, foreign_key="family.id")
+    family: Family | None = Relationship(back_populates="lists")
+
+    tasks: list["Task"] = Relationship(back_populates="list")
 
 
 class TaskBase(SQLModel):
@@ -75,7 +115,8 @@ class TaskBase(SQLModel):
 
 
 class TaskCreate(TaskBase):
-    user_id: uuid.UUID | None = Field(default=None)
+    user_id: uuid.UUID
+    list_id: uuid.UUID
 
 
 class Task(TaskBase, table=True):
@@ -85,6 +126,9 @@ class Task(TaskBase, table=True):
 
     user_id: uuid.UUID = Field(foreign_key="user.id")
     user: User = Relationship(back_populates="tasks")
+
+    list_id: uuid.UUID = Field(foreign_key="list.id")
+    list: List = Relationship(back_populates="tasks")
 
 
 class TasksPublic(SQLModel):
