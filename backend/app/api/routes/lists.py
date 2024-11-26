@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException
 
 from app.api.deps import CurrentUserDep, SessionDep
 from app.core import crud
-from app.core.models import ListCreate, ListPublic, ListUpdate
+from app.core.models import List, ListCreate, ListPublic, ListUpdate, Message
 
 router = APIRouter()
 
@@ -72,3 +72,40 @@ def update_list(
         )
 
     return crud.update_list(session=session, db_list=db_list, list_in=list_in)
+
+
+@router.delete("/{id}", response_model=Message)
+def delete_list(session: SessionDep, current_user, id: uuid.UUID) -> Any:
+    """
+    Delete list
+    """
+
+    db_list = session.get(List, id)
+
+    if not db_list:
+        raise HTTPException(status_code=404, detail="List not found")
+
+    if db_list.family_id:
+        if not current_user.is_admin:
+            raise HTTPException(
+                status_code=403,
+                detail="Not enough permissions to delete a family list.",
+            )
+
+        if db_list.family_id != current_user.family_id:
+            raise HTTPException(
+                status_code=403,
+                detail="Not enough permissions to delete someone else's family list.",
+            )
+
+        crud.delete_list(session=session, db_list=db_list)
+        return Message(message="Task deleted successfully")
+
+    if db_list.user_id != current_user.id:
+        raise HTTPException(
+            status_code=400,
+            detail="Not enough permissions to delete someone else's the list.",
+        )
+
+    crud.delete_list(session=session, db_list=db_list)
+    return Message(message="Task deleted successfully")

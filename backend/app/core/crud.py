@@ -103,6 +103,14 @@ def promote_user_to_admin(*, session, db_user: User) -> User:
     return db_user
 
 
+def demote_admin_to_user(*, session: Session, db_admin_user: User) -> User:
+    db_admin_user.sqlmodel_update({"is_admin": False})
+    session.add(db_admin_user)
+    session.commit()
+    session.refresh()
+    return db_admin_user
+
+
 def update_list(*, session: Session, db_list: List, list_in: ListUpdate) -> List:
     list_data = list_in.model_dump(exclude_unset=True)
     db_list.sqlmodel_update(list_data)
@@ -126,6 +134,18 @@ def complete_task(*, session: Session, db_task: Task) -> Task:
     session.commit()
     session.refresh(db_task)
     return db_task
+
+
+def delete_task(*, session: Session, db_task: Task) -> Task:
+    session.delete(db_task)
+    session.commit()
+    return db_task
+
+
+def delete_list(*, session: Session, db_list: List) -> List:
+    session.delete(db_list)
+    session.commit
+    return db_list
 
 
 def authenticate(*, session: Session, email: str, password: str) -> User | None:

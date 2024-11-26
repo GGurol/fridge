@@ -5,6 +5,7 @@ description = ""
 authors = ["David"]
 readme = "README.md"
 
+
 [tool.poetry.dependencies]
 python = "^3.12"
 fastapi = { extras = ["standard"], version = "^0.115.4" }

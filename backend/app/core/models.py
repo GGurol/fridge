@@ -21,8 +21,8 @@ class Family(FamilyBase, table=True):
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
 
-    members: list["User"] = Relationship(back_populates="family")
-    lists: list["List"] = Relationship(back_populates="family")
+    members: list["User"] = Relationship(back_populates="family", cascade_delete=True)
+    lists: list["List"] = Relationship(back_populates="family", cascade_delete=True)
 
 
 class FamilyPublic(FamilyBase):
@@ -63,11 +63,13 @@ class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
 
-    family_id: uuid.UUID | None = Field(default=None, foreign_key="family.id")
+    family_id: uuid.UUID | None = Field(
+        default=None, foreign_key="family.id", ondelete="CASCADE"
+    )
     family: Family | None = Relationship(back_populates="members")
 
-    tasks: list["Task"] = Relationship(back_populates="user")
-    lists: list["List"] = Relationship(back_populates="user")
+    tasks: list["Task"] = Relationship(back_populates="user", cascade_delete=True)
+    lists: list["List"] = Relationship(back_populates="user", cascade_delete=True)
 
 
 class ListBase(SQLModel):
@@ -99,19 +101,27 @@ class ListPublic(ListBase):
 class List(ListBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
 
-    user_id: uuid.UUID | None = Field(default=None, foreign_key="user.id")
+    user_id: uuid.UUID | None = Field(
+        default=None, foreign_key="user.id", ondelete="CASCADE"
+    )
     user: User | None = Relationship(back_populates="lists")
 
-    family_id: uuid.UUID | None = Field(default=None, foreign_key="family.id")
+    family_id: uuid.UUID | None = Field(
+        default=None, foreign_key="family.id", ondelete="CASCADE"
+    )
     family: Family | None = Relationship(back_populates="lists")
 
-    tasks: list["Task"] = Relationship(back_populates="list")
+    tasks: list["Task"] = Relationship(back_populates="list", cascade_delete=True)
 
 
 class TaskBase(SQLModel):
     title: str = Field(min_length=1, max_length=255)
     notes: str | None = Field(default=None, max_length=255)
     completed: bool = False
+
+
+class TaskPublic(TaskBase):
+    id: uuid.UUID
 
 
 class TaskCreate(TaskBase):
@@ -124,10 +134,10 @@ class Task(TaskBase, table=True):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
-    user_id: uuid.UUID = Field(foreign_key="user.id")
+    user_id: uuid.UUID = Field(foreign_key="user.id", ondelete="CASCADE")
     user: User = Relationship(back_populates="tasks")
 
-    list_id: uuid.UUID = Field(foreign_key="list.id")
+    list_id: uuid.UUID = Field(foreign_key="list.id", ondelete="CASCADE")
     list: List = Relationship(back_populates="tasks")
 
 
@@ -151,3 +161,7 @@ class TokenPayload(SQLModel):
     """
 
     sub: str | None = None
+
+
+class Message(SQLModel):
+    message: str
