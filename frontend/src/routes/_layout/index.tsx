@@ -7,7 +7,7 @@ export const Route = createFileRoute("/_layout/")({
 function Dashboard() {
   return (
     <>
-      <span>layout index</span>
+      <span className="text-red-500">layout index</span>
     </>
   );
 }
