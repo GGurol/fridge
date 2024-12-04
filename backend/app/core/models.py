@@ -53,6 +53,7 @@ class UserPublic(UserBase):
     """Class for user data to be returned via API, including the user's ID."""
 
     id: uuid.UUID
+    family_id: uuid.UUID | None
 
 
 class User(UserBase, table=True):

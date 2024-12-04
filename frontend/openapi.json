@@ -749,10 +749,17 @@
             "title": "Is Admin",
             "default": false
           },
-          "id": { "type": "string", "format": "uuid", "title": "Id" }
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "family_id": {
+            "anyOf": [
+              { "type": "string", "format": "uuid" },
+              { "type": "null" }
+            ],
+            "title": "Family Id"
+          }
         },
         "type": "object",
-        "required": ["email", "id"],
+        "required": ["email", "id", "family_id"],
         "title": "UserPublic",
         "description": "Class for user data to be returned via API, including the user's ID."
       },

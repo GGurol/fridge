@@ -111,6 +111,7 @@ export type UserPublic = {
     name?: (string | null);
     is_admin?: boolean;
     id: string;
+    family_id: (string | null);
 };
 
 export type ValidationError = {
