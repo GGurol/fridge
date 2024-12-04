@@ -5,6 +5,13 @@ import "./index.css";
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "react-hot-toast";
+import { OpenAPI } from "~/client";
+
+OpenAPI.BASE = import.meta.env.VITE_API_URL;
+OpenAPI.TOKEN = async () => {
+  return localStorage.getItem("access_token") || "";
+};
 
 // Create a new router instance
 const router = createRouter({ routeTree });
@@ -27,6 +34,7 @@ if (!rootElement.innerHTML) {
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
+        <Toaster />
       </QueryClientProvider>
     </StrictMode>,
   );
