@@ -1,6 +1,6 @@
 from typing import Any
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from app.api.deps import CurrentUserDep, SessionDep
 from app.core import crud
@@ -15,6 +15,9 @@ def create_family(session: SessionDep, current_user: CurrentUserDep, name: str) 
     Create new family.
     """
 
+    if current_user.family_id:
+        raise HTTPException(status_code=403, detail="User is already part of a family")
+
     family = crud.create_family(session=session, name=name, db_user=current_user)
     crud.promote_user_to_admin(session=session, db_user=current_user)
     return family
@@ -27,6 +30,8 @@ def join_family(
     """
     Join a family.
     """
+    if current_user.family_id:
+        raise HTTPException(status_code=403, detail="User is already part of a family")
 
     family = crud.get_family_by_invite_code(session=session, invite_code=invite_code)
     crud.join_family(session=session, db_user=current_user, family_id=family.id)

@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import useAuth from "~/hooks/useAuth";
 
 export const Route = createFileRoute("/_layout/")({
@@ -6,18 +6,14 @@ export const Route = createFileRoute("/_layout/")({
 });
 
 function Home() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-
-  if (!user?.family_id) {
-    navigate({ to: "/setup" });
-  }
-
-  console.log(user);
+  const { user, logout } = useAuth();
 
   return (
     <>
       <h1 className="text-3xl">Hi, {user?.name || user?.email} 👋🏼</h1>
+      <button type="button" className="border p-2" onClick={() => logout()}>
+        logout
+      </button>
     </>
   );
 }

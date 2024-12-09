@@ -27,12 +27,18 @@ const useAuth = () => {
     enabled: isLoggedIn(),
   });
 
-  const signUpMutation = useMutation({
-    mutationFn: (data: UserCreate) =>
-      UsersService.registerUser({ requestBody: data }),
+  const signup = async (data: UserCreate) => {
+    await UsersService.registerUser({ requestBody: data });
+    const response = await LoginService.loginAccessToken({
+      formData: { username: data.email, password: data.password },
+    });
+    localStorage.setItem("access_token", response.access_token);
+  };
 
+  const signUpMutation = useMutation({
+    mutationFn: signup,
     onSuccess: () => {
-      navigate({ to: "/login" });
+      navigate({ to: "/setup" });
       toast.success("Account has been created successfully");
     },
     onError: (err: ApiError) => {

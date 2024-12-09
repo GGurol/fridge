@@ -1,6 +1,6 @@
 import { FieldApi, useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-form-adapter";
 import { AxiosError } from "axios";
 import toast from "react-hot-toast";
@@ -11,9 +11,17 @@ import {
   FamiliesJoinFamilyData,
   FamiliesService,
 } from "~/client";
+import { isLoggedIn } from "~/hooks/useAuth";
 
 export const Route = createFileRoute("/setup")({
   component: Setup,
+  beforeLoad: async () => {
+    if (!isLoggedIn()) {
+      throw redirect({
+        to: "/login",
+      });
+    }
+  },
 });
 
 function FieldInfo({ field }: { field: FieldApi<any, any, any, any> }) {
@@ -27,8 +35,12 @@ function FieldInfo({ field }: { field: FieldApi<any, any, any, any> }) {
   );
 }
 
-const createSchema = z.object({ name: z.string() });
-const joinSchema = z.object({ inviteCode: z.string() });
+const createSchema = z.object({
+  name: z.string().min(1, { message: "This field is required" }),
+});
+const joinSchema = z.object({
+  inviteCode: z.string().min(1, { message: "This field is required" }),
+});
 
 type Create = z.infer<typeof createSchema>;
 type Join = z.infer<typeof joinSchema>;
@@ -46,8 +58,8 @@ function Setup() {
     },
   });
   const createMutation = useMutation({
-    mutationFn: (data: FamiliesCreateFamilyData) =>
-      FamiliesService.createFamily(data),
+    mutationFn: async (data: FamiliesCreateFamilyData) =>
+      await FamiliesService.createFamily(data),
     onSuccess: () => {
       navigate({ to: "/" });
       toast.success("Family has been created successfully.");
