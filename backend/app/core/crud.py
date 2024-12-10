@@ -7,6 +7,8 @@ from app.core.models import (
     Family,
     List,
     ListCreate,
+    ListDisplay,
+    ListsPublic,
     ListUpdate,
     Task,
     TaskCreate,
@@ -14,7 +16,6 @@ from app.core.models import (
     User,
     UserCreate,
 )
-from app.core.utils import generate_invite_code
 
 
 def create_user(*, session: Session, user_create: UserCreate) -> User:
@@ -48,6 +49,54 @@ def create_list(
     session.commit()
     session.refresh(db_list)
     return db_list
+
+
+def read_personal_lists(
+    *, session: Session, user_id: uuid.UUID, skip: int = 0, limit: int = 100
+) -> List:
+    count_statement = (
+        select(func.count()).select_from(List).where(List.user_id == user_id)
+    )
+    count = session.exec(count_statement).one()
+    statement = select(List).where(List.user_id == user_id).offset(skip).limit(limit)
+    db_lists = session.exec(statement).all()
+    data = []
+    for db_list in db_lists:
+        task_count_statement = (
+            select(func.count()).select_from(Task).where(Task.list_id == db_list.id)
+        )
+        task_count = session.exec(task_count_statement).one()
+        list_display = ListDisplay.model_validate(
+            db_list, update={"task_count": task_count}
+        )
+        data.append(list_display)
+
+    return ListsPublic(data=data, count=count)
+
+
+def read_family_lists(
+    *, session: Session, family_id: uuid.UUID, skip: int = 0, limit: int = 100
+) -> List:
+    count_statement = (
+        select(func.count()).select_from(List).where(List.family_id == family_id)
+    )
+    count = session.exec(count_statement).one()
+    statement = (
+        select(List).where(List.family_id == family_id).offset(skip).limit(limit)
+    )
+    db_lists = session.exec(statement).all()
+    data = []
+    for db_list in db_lists:
+        task_count_statement = (
+            select(func.count()).select_from(Task).where(Task.list_id == db_list.id)
+        )
+        task_count = session.exec(task_count_statement).one()
+        list_display = ListDisplay.model_validate(
+            db_list, update={"task_count": task_count}
+        )
+        data.append(list_display)
+
+    return ListsPublic(data=data, count=count)
 
 
 def read_user_tasks(
@@ -88,7 +137,7 @@ def read_family_tasks(
 
 
 def create_family(*, session: Session, name: str, db_user: User) -> Family:
-    db_family = Family(name=name, invite_code=generate_invite_code(), members=[db_user])
+    db_family = Family(name=name, members=[db_user])
     session.add(db_family)
     session.commit()
     session.refresh(db_family)
@@ -144,7 +193,7 @@ def delete_task(*, session: Session, db_task: Task) -> Task:
 
 def delete_list(*, session: Session, db_list: List) -> List:
     session.delete(db_list)
-    session.commit
+    session.commit()
     return db_list
 
 
@@ -153,7 +202,7 @@ def authenticate(*, session: Session, email: str, password: str) -> User | None:
     Authenticates a user by checking the provided email and password against the database.
     """
 
-    db_user = get_user_by_email(session=session, email=email)
+    db_user = read_user_by_email(session=session, email=email)
     if not db_user:
         return None
     if not security.verify_password(password, db_user.hashed_password):
@@ -161,7 +210,7 @@ def authenticate(*, session: Session, email: str, password: str) -> User | None:
     return db_user
 
 
-def get_user_by_email(*, session: Session, email: str) -> User | None:
+def read_user_by_email(*, session: Session, email: str) -> User | None:
     """
     Fetches a user from the database by their email address.
     """
@@ -171,7 +220,7 @@ def get_user_by_email(*, session: Session, email: str) -> User | None:
     return session_user
 
 
-def get_user_by_id(*, session: Session, id: uuid.UUID) -> User | None:
+def read_user_by_id(*, session: Session, id: uuid.UUID) -> User | None:
     """
     Fetches a user from the database by their id.
     """
@@ -181,7 +230,7 @@ def get_user_by_id(*, session: Session, id: uuid.UUID) -> User | None:
     return session_user
 
 
-def get_task_by_id(*, session: Session, id: uuid.UUID) -> Task | None:
+def read_task_by_id(*, session: Session, id: uuid.UUID) -> Task | None:
     """
     Fetches a task from the database by their id.
     """
@@ -191,17 +240,17 @@ def get_task_by_id(*, session: Session, id: uuid.UUID) -> Task | None:
     return session_task
 
 
-def get_list_by_id(*, session: Session, id: uuid.UUID) -> List | None:
+def read_list_by_id(*, session: Session, id: uuid.UUID) -> List | None:
     """
     Fetches a task from the database by their id.
     """
 
     statement = select(List).where(List.id == id)
-    session_task = session.exec(statement).first()
-    return session_task
+    session_list = session.exec(statement).first()
+    return session_list
 
 
-def get_family_by_invite_code(*, session: Session, invite_code: str) -> Family | None:
+def read_family_by_invite_code(*, session: Session, invite_code: str) -> Family | None:
     """
     Fetches a family from the database by their invite code.
     """

@@ -16,6 +16,7 @@ import { Route as SetupImport } from './routes/setup'
 import { Route as LoginImport } from './routes/login'
 import { Route as LayoutImport } from './routes/_layout'
 import { Route as LayoutIndexImport } from './routes/_layout/index'
+import { Route as LayoutListsListIdImport } from './routes/_layout/lists/$listId'
 
 // Create/Update Routes
 
@@ -45,6 +46,12 @@ const LayoutRoute = LayoutImport.update({
 const LayoutIndexRoute = LayoutIndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
+const LayoutListsListIdRoute = LayoutListsListIdImport.update({
+  id: '/lists/$listId',
+  path: '/lists/$listId',
   getParentRoute: () => LayoutRoute,
 } as any)
 
@@ -87,6 +94,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutIndexImport
       parentRoute: typeof LayoutImport
     }
+    '/_layout/lists/$listId': {
+      id: '/_layout/lists/$listId'
+      path: '/lists/$listId'
+      fullPath: '/lists/$listId'
+      preLoaderRoute: typeof LayoutListsListIdImport
+      parentRoute: typeof LayoutImport
+    }
   }
 }
 
@@ -94,10 +108,12 @@ declare module '@tanstack/react-router' {
 
 interface LayoutRouteChildren {
   LayoutIndexRoute: typeof LayoutIndexRoute
+  LayoutListsListIdRoute: typeof LayoutListsListIdRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutIndexRoute: LayoutIndexRoute,
+  LayoutListsListIdRoute: LayoutListsListIdRoute,
 }
 
 const LayoutRouteWithChildren =
@@ -109,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/setup': typeof SetupRoute
   '/signup': typeof SignupRoute
   '/': typeof LayoutIndexRoute
+  '/lists/$listId': typeof LayoutListsListIdRoute
 }
 
 export interface FileRoutesByTo {
@@ -116,6 +133,7 @@ export interface FileRoutesByTo {
   '/setup': typeof SetupRoute
   '/signup': typeof SignupRoute
   '/': typeof LayoutIndexRoute
+  '/lists/$listId': typeof LayoutListsListIdRoute
 }
 
 export interface FileRoutesById {
@@ -125,14 +143,22 @@ export interface FileRoutesById {
   '/setup': typeof SetupRoute
   '/signup': typeof SignupRoute
   '/_layout/': typeof LayoutIndexRoute
+  '/_layout/lists/$listId': typeof LayoutListsListIdRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/login' | '/setup' | '/signup' | '/'
+  fullPaths: '' | '/login' | '/setup' | '/signup' | '/' | '/lists/$listId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/setup' | '/signup' | '/'
-  id: '__root__' | '/_layout' | '/login' | '/setup' | '/signup' | '/_layout/'
+  to: '/login' | '/setup' | '/signup' | '/' | '/lists/$listId'
+  id:
+    | '__root__'
+    | '/_layout'
+    | '/login'
+    | '/setup'
+    | '/signup'
+    | '/_layout/'
+    | '/_layout/lists/$listId'
   fileRoutesById: FileRoutesById
 }
 
@@ -169,7 +195,8 @@ export const routeTree = rootRoute
     "/_layout": {
       "filePath": "_layout.tsx",
       "children": [
-        "/_layout/"
+        "/_layout/",
+        "/_layout/lists/$listId"
       ]
     },
     "/login": {
@@ -183,6 +210,10 @@ export const routeTree = rootRoute
     },
     "/_layout/": {
       "filePath": "_layout/index.tsx",
+      "parent": "/_layout"
+    },
+    "/_layout/lists/$listId": {
+      "filePath": "_layout/lists/$listId.tsx",
       "parent": "/_layout"
     }
   }

@@ -22,6 +22,18 @@ export type HTTPValidationError = {
     detail?: Array<ValidationError>;
 };
 
+export type List = {
+    name: string;
+    is_family_list?: boolean;
+    /**
+     * Hex color code in the format #1138CC
+     */
+    color: string;
+    id?: string;
+    user_id?: (string | null);
+    family_id?: (string | null);
+};
+
 export type ListCreate = {
     name: string;
     is_family_list?: boolean;
@@ -29,6 +41,17 @@ export type ListCreate = {
      * Hex color code in the format #1138CC
      */
     color: string;
+};
+
+export type ListDisplay = {
+    name: string;
+    is_family_list?: boolean;
+    /**
+     * Hex color code in the format #1138CC
+     */
+    color: string;
+    id: string;
+    task_count: number;
 };
 
 export type ListPublic = {
@@ -39,6 +62,11 @@ export type ListPublic = {
      */
     color: string;
     id: string;
+};
+
+export type ListsPublic = {
+    data: Array<ListDisplay>;
+    count: number;
 };
 
 export type ListUpdate = {
@@ -132,11 +160,15 @@ export type FamiliesJoinFamilyData = {
 
 export type FamiliesJoinFamilyResponse = (FamilyPublic);
 
-export type ListsCreateListData = {
-    requestBody: ListCreate;
+export type ListsReadPersonalListsResponse = (ListsPublic);
+
+export type ListsReadFamilyListsResponse = (ListsPublic);
+
+export type ListsReadListData = {
+    listId: string;
 };
 
-export type ListsCreateListResponse = (ListPublic);
+export type ListsReadListResponse = (List);
 
 export type ListsUpdateListData = {
     listId: string;
@@ -146,11 +178,16 @@ export type ListsUpdateListData = {
 export type ListsUpdateListResponse = (ListPublic);
 
 export type ListsDeleteListData = {
-    currentUser: unknown;
-    id: string;
+    listId: string;
 };
 
 export type ListsDeleteListResponse = (Message);
+
+export type ListsCreateListData = {
+    requestBody: ListCreate;
+};
+
+export type ListsCreateListResponse = (ListPublic);
 
 export type LoginLoginAccessTokenData = {
     formData: Body_login_login_access_token;

@@ -4,14 +4,18 @@ from datetime import datetime
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
 
+from app.core.utils import generate_invite_code
+
 
 class FamilyBase(SQLModel):
     """
     Base class for family data with shared properties.
     """
 
-    name: str
-    invite_code: str
+    name: str = Field(min_length=1, max_length=255)
+    invite_code: str = Field(
+        default_factory=generate_invite_code, min_length=8, max_length=8
+    )
 
 
 class Family(FamilyBase, table=True):
@@ -95,10 +99,6 @@ class ListUpdate(ListBase):
     )
 
 
-class ListPublic(ListBase):
-    id: uuid.UUID
-
-
 class List(ListBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
 
@@ -113,6 +113,20 @@ class List(ListBase, table=True):
     family: Family | None = Relationship(back_populates="lists")
 
     tasks: list["Task"] = Relationship(back_populates="list", cascade_delete=True)
+
+
+class ListPublic(ListBase):
+    id: uuid.UUID
+
+
+class ListDisplay(ListBase):
+    id: uuid.UUID
+    task_count: int
+
+
+class ListsPublic(SQLModel):
+    data: list[ListDisplay]
+    count: int
 
 
 class TaskBase(SQLModel):

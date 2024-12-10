@@ -33,6 +33,6 @@ def join_family(
     if current_user.family_id:
         raise HTTPException(status_code=403, detail="User is already part of a family")
 
-    family = crud.get_family_by_invite_code(session=session, invite_code=invite_code)
+    family = crud.read_family_by_invite_code(session=session, invite_code=invite_code)
     crud.join_family(session=session, db_user=current_user, family_id=family.id)
     return family

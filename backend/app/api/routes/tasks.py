@@ -56,7 +56,7 @@ def complete_task(
     Complete task.
     """
 
-    task = crud.get_task_by_id(session=session, id=id)
+    task = crud.read_task_by_id(session=session, id=id)
 
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")

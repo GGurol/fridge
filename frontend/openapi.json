@@ -328,26 +328,65 @@
         }
       }
     },
-    "/api/lists/": {
-      "post": {
+    "/api/lists/personal": {
+      "get": {
         "tags": ["lists"],
-        "summary": "Create List",
-        "description": "Create new list.",
-        "operationId": "lists-create_list",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/ListCreate" }
-            }
-          },
-          "required": true
-        },
+        "summary": "Read Personal Lists",
+        "description": "Retrieve personal lists.",
+        "operationId": "lists-read_personal_lists",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/ListPublic" }
+                "schema": { "$ref": "#/components/schemas/ListsPublic" }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2PasswordBearer": [] }]
+      }
+    },
+    "/api/lists/family": {
+      "get": {
+        "tags": ["lists"],
+        "summary": "Read Family Lists",
+        "description": "Retrieve family lists.",
+        "operationId": "lists-read_family_lists",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ListsPublic" }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2PasswordBearer": [] }]
+      }
+    },
+    "/api/lists/{list_id}": {
+      "get": {
+        "tags": ["lists"],
+        "summary": "Read List",
+        "description": "Retrieve list.",
+        "operationId": "lists-read_list",
+        "security": [{ "OAuth2PasswordBearer": [] }],
+        "parameters": [
+          {
+            "name": "list_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "List Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/List" }
               }
             }
           },
@@ -359,11 +398,8 @@
               }
             }
           }
-        },
-        "security": [{ "OAuth2PasswordBearer": [] }]
-      }
-    },
-    "/api/lists/{list_id}": {
+        }
+      },
       "patch": {
         "tags": ["lists"],
         "summary": "Update List",
@@ -404,26 +440,19 @@
             }
           }
         }
-      }
-    },
-    "/api/lists/{id}": {
+      },
       "delete": {
         "tags": ["lists"],
         "summary": "Delete List",
         "description": "Delete list",
         "operationId": "lists-delete_list",
+        "security": [{ "OAuth2PasswordBearer": [] }],
         "parameters": [
           {
-            "name": "id",
+            "name": "list_id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "format": "uuid", "title": "Id" }
-          },
-          {
-            "name": "current_user",
-            "in": "query",
-            "required": true,
-            "schema": { "title": "Current User" }
+            "schema": { "type": "string", "format": "uuid", "title": "List Id" }
           }
         ],
         "responses": {
@@ -444,6 +473,41 @@
             }
           }
         }
+      }
+    },
+    "/api/lists/": {
+      "post": {
+        "tags": ["lists"],
+        "summary": "Create List",
+        "description": "Create new list.",
+        "operationId": "lists-create_list",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ListCreate" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ListPublic" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "OAuth2PasswordBearer": [] }]
       }
     }
   },
@@ -476,8 +540,18 @@
       },
       "FamilyPublic": {
         "properties": {
-          "name": { "type": "string", "title": "Name" },
-          "invite_code": { "type": "string", "title": "Invite Code" },
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "invite_code": {
+            "type": "string",
+            "maxLength": 8,
+            "minLength": 8,
+            "title": "Invite Code"
+          },
           "id": { "type": "string", "format": "uuid", "title": "Id" }
         },
         "type": "object",
@@ -495,6 +569,46 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "List": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "is_family_list": {
+            "type": "boolean",
+            "title": "Is Family List",
+            "default": false
+          },
+          "color": {
+            "type": "string",
+            "maxLength": 7,
+            "minLength": 7,
+            "title": "Color",
+            "description": "Hex color code in the format #1138CC"
+          },
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "user_id": {
+            "anyOf": [
+              { "type": "string", "format": "uuid" },
+              { "type": "null" }
+            ],
+            "title": "User Id"
+          },
+          "family_id": {
+            "anyOf": [
+              { "type": "string", "format": "uuid" },
+              { "type": "null" }
+            ],
+            "title": "Family Id"
+          }
+        },
+        "type": "object",
+        "required": ["name", "color"],
+        "title": "List"
       },
       "ListCreate": {
         "properties": {
@@ -520,6 +634,33 @@
         "type": "object",
         "required": ["name", "color"],
         "title": "ListCreate"
+      },
+      "ListDisplay": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "is_family_list": {
+            "type": "boolean",
+            "title": "Is Family List",
+            "default": false
+          },
+          "color": {
+            "type": "string",
+            "maxLength": 7,
+            "minLength": 7,
+            "title": "Color",
+            "description": "Hex color code in the format #1138CC"
+          },
+          "id": { "type": "string", "format": "uuid", "title": "Id" },
+          "task_count": { "type": "integer", "title": "Task Count" }
+        },
+        "type": "object",
+        "required": ["name", "color", "id", "task_count"],
+        "title": "ListDisplay"
       },
       "ListPublic": {
         "properties": {
@@ -572,6 +713,19 @@
         },
         "type": "object",
         "title": "ListUpdate"
+      },
+      "ListsPublic": {
+        "properties": {
+          "data": {
+            "items": { "$ref": "#/components/schemas/ListDisplay" },
+            "type": "array",
+            "title": "Data"
+          },
+          "count": { "type": "integer", "title": "Count" }
+        },
+        "type": "object",
+        "required": ["data", "count"],
+        "title": "ListsPublic"
       },
       "Message": {
         "properties": { "message": { "type": "string", "title": "Message" } },

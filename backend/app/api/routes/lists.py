@@ -5,9 +5,45 @@ from fastapi import APIRouter, HTTPException
 
 from app.api.deps import CurrentUserDep, SessionDep
 from app.core import crud
-from app.core.models import List, ListCreate, ListPublic, ListUpdate, Message
+from app.core.models import (
+    List,
+    ListCreate,
+    ListPublic,
+    ListsPublic,
+    ListUpdate,
+    Message,
+)
 
 router = APIRouter()
+
+
+@router.get("/personal", response_model=ListsPublic)
+def read_personal_lists(session: SessionDep, current_user: CurrentUserDep) -> Any:
+    """
+    Retrieve personal lists.
+    """
+
+    return crud.read_personal_lists(session=session, user_id=current_user.id)
+
+
+@router.get("/family", response_model=ListsPublic)
+def read_family_lists(session: SessionDep, current_user: CurrentUserDep) -> Any:
+    """
+    Retrieve family lists.
+    """
+
+    return crud.read_family_lists(session=session, family_id=current_user.family_id)
+
+
+@router.get("/{list_id}", response_model=List)
+def read_list(
+    session: SessionDep, current_user: CurrentUserDep, list_id: uuid.UUID
+) -> Any:
+    """
+    Retrieve list.
+    """
+
+    return crud.read_list_by_id(session=session, id=list_id)
 
 
 @router.post("/", response_model=ListPublic)
@@ -46,7 +82,7 @@ def update_list(
     Update a list.
     """
 
-    db_list = crud.get_list_by_id(session=session, id=list_id)
+    db_list = crud.read_list_by_id(session=session, id=list_id)
     if not db_list:
         raise HTTPException(status_code=404, detail="List not found")
 
@@ -74,13 +110,15 @@ def update_list(
     return crud.update_list(session=session, db_list=db_list, list_in=list_in)
 
 
-@router.delete("/{id}", response_model=Message)
-def delete_list(session: SessionDep, current_user, id: uuid.UUID) -> Any:
+@router.delete("/{list_id}", response_model=Message)
+def delete_list(
+    session: SessionDep, current_user: CurrentUserDep, list_id: uuid.UUID
+) -> Any:
     """
     Delete list
     """
 
-    db_list = session.get(List, id)
+    db_list = session.get(List, list_id)
 
     if not db_list:
         raise HTTPException(status_code=404, detail="List not found")

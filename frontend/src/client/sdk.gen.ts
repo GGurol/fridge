@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { FamiliesCreateFamilyData, FamiliesCreateFamilyResponse, FamiliesJoinFamilyData, FamiliesJoinFamilyResponse, ListsCreateListData, ListsCreateListResponse, ListsUpdateListData, ListsUpdateListResponse, ListsDeleteListData, ListsDeleteListResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, PingPingResponse, TasksReadTasksResponse, TasksCreateTaskData, TasksCreateTaskResponse, TasksCompleteTaskData, TasksCompleteTaskResponse, TasksDeleteTaskData, TasksDeleteTaskResponse, UsersReadUserMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersPromoteUserData, UsersPromoteUserResponse } from './types.gen';
+import type { FamiliesCreateFamilyData, FamiliesCreateFamilyResponse, FamiliesJoinFamilyData, FamiliesJoinFamilyResponse, ListsReadPersonalListsResponse, ListsReadFamilyListsResponse, ListsReadListData, ListsReadListResponse, ListsUpdateListData, ListsUpdateListResponse, ListsDeleteListData, ListsDeleteListResponse, ListsCreateListData, ListsCreateListResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, PingPingResponse, TasksReadTasksResponse, TasksCreateTaskData, TasksCreateTaskResponse, TasksCompleteTaskData, TasksCompleteTaskResponse, TasksDeleteTaskData, TasksDeleteTaskResponse, UsersReadUserMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersPromoteUserData, UsersPromoteUserResponse } from './types.gen';
 
 export class FamiliesService {
     /**
@@ -52,19 +52,46 @@ export class FamiliesService {
 
 export class ListsService {
     /**
-     * Create List
-     * Create new list.
-     * @param data The data for the request.
-     * @param data.requestBody
-     * @returns ListPublic Successful Response
+     * Read Personal Lists
+     * Retrieve personal lists.
+     * @returns ListsPublic Successful Response
      * @throws ApiError
      */
-    public static createList(data: ListsCreateListData): CancelablePromise<ListsCreateListResponse> {
+    public static readPersonalLists(): CancelablePromise<ListsReadPersonalListsResponse> {
         return __request(OpenAPI, {
-            method: 'POST',
-            url: '/api/lists/',
-            body: data.requestBody,
-            mediaType: 'application/json',
+            method: 'GET',
+            url: '/api/lists/personal'
+        });
+    }
+    
+    /**
+     * Read Family Lists
+     * Retrieve family lists.
+     * @returns ListsPublic Successful Response
+     * @throws ApiError
+     */
+    public static readFamilyLists(): CancelablePromise<ListsReadFamilyListsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/lists/family'
+        });
+    }
+    
+    /**
+     * Read List
+     * Retrieve list.
+     * @param data The data for the request.
+     * @param data.listId
+     * @returns List Successful Response
+     * @throws ApiError
+     */
+    public static readList(data: ListsReadListData): CancelablePromise<ListsReadListResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/lists/{list_id}',
+            path: {
+                list_id: data.listId
+            },
             errors: {
                 422: 'Validation Error'
             }
@@ -99,21 +126,37 @@ export class ListsService {
      * Delete List
      * Delete list
      * @param data The data for the request.
-     * @param data.id
-     * @param data.currentUser
+     * @param data.listId
      * @returns Message Successful Response
      * @throws ApiError
      */
     public static deleteList(data: ListsDeleteListData): CancelablePromise<ListsDeleteListResponse> {
         return __request(OpenAPI, {
             method: 'DELETE',
-            url: '/api/lists/{id}',
+            url: '/api/lists/{list_id}',
             path: {
-                id: data.id
+                list_id: data.listId
             },
-            query: {
-                current_user: data.currentUser
-            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Create List
+     * Create new list.
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns ListPublic Successful Response
+     * @throws ApiError
+     */
+    public static createList(data: ListsCreateListData): CancelablePromise<ListsCreateListResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/lists/',
+            body: data.requestBody,
+            mediaType: 'application/json',
             errors: {
                 422: 'Validation Error'
             }
