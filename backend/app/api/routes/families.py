@@ -25,12 +25,12 @@ def create_family(session: SessionDep, current_user: CurrentUserDep, name: str) 
 
     crud.create_list(
         session=session,
-        list_in=ListCreate(name=settings.DEFAULT_LIST, is_family_list=True),
+        list_in=ListCreate(name=settings.DEFAULT_FAMILY_LIST, is_family_list=True),
         relationship_data={"family_id": current_user.family_id},
     )
     crud.create_list(
         session=session,
-        list_in=ListCreate(name=settings.DEFAULT_LIST),
+        list_in=ListCreate(name=settings.DEFAULT_PERSONAL_LIST),
         relationship_data={"user_id": current_user.id},
     )
 
@@ -52,7 +52,7 @@ def join_family(
 
     crud.create_list(
         session=session,
-        list_in=ListCreate(name=settings.DEFAULT_LIST),
+        list_in=ListCreate(name=settings.DEFAULT_PERSONAL_LIST),
         relationship_data={"user_id": current_user.id},
     )
 

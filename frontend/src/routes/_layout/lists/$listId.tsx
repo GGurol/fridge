@@ -2,24 +2,36 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AxiosError } from "axios";
 import toast from "react-hot-toast";
-import { ApiError, ListsService, ListsUpdateListData } from "~/client";
+import { ApiError, ListsService, TasksService } from "~/client";
 import Spinner from "~/components/Common/Spinner";
 import EditList from "~/components/Lists/EditList";
+import AddTask from "~/components/Tasks/AddTask";
 
 export const Route = createFileRoute("/_layout/lists/$listId")({
-  component: RouteComponent,
+  component: List,
 });
 
-function RouteComponent() {
+function List() {
   const { listId } = Route.useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { isLoading, isError, data, error } = useQuery({
+  const {
+    isLoading: isLoadingList,
+    isError: isErrorList,
+    data: list,
+    error: errorLists,
+  } = useQuery({
     queryKey: ["list", listId],
-    queryFn: ({ queryKey }) => {
-      const [_, listId] = queryKey;
-      return ListsService.readList({ listId });
-    },
+    queryFn: () => ListsService.readList({ listId }),
+  });
+  const {
+    isLoading: isLoadingTasks,
+    isError: isErrorTasks,
+    data: tasks,
+    error: errorTasks,
+  } = useQuery({
+    queryKey: ["tasks", listId],
+    queryFn: () => TasksService.readTasks({ listId }),
   });
 
   const deleteMutation = useMutation({
@@ -42,37 +54,50 @@ function RouteComponent() {
       toast.error(`${errDetail}`);
     },
     onSettled: () => {
-      data?.is_family_list
+      list?.is_family_list
         ? queryClient.invalidateQueries({ queryKey: ["family-lists"] })
         : queryClient.invalidateQueries({ queryKey: ["personal-lists"] });
     },
   });
 
-  if (isLoading) {
-    <div className="flex h-screen w-full items-center justify-center">
-      <Spinner />
-    </div>;
+  if (isLoadingList || isLoadingTasks) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <Spinner />
+      </div>
+    );
   }
 
-  if (isError) {
-    return <span>Error: {error.message}</span>;
+  if (isErrorList) {
+    return <span>Error: {errorLists.message}</span>;
+  }
+
+  if (isErrorTasks) {
+    return <span>Error: {errorTasks.message}</span>;
   }
 
   return (
-    <>
-      <h1>{data?.name}</h1>
-      <h1>{data?.user_id}</h1>
-      <h1 style={{ color: data?.color }}>{data?.color}</h1>
-      <EditList listId={listId} name={data?.name} color={data?.color} />
+    <div className="flex flex-col space-y-10">
+      <h1>{list?.name}</h1>
+      <h1 style={{ color: list?.color }}>COLOR</h1>
+      <section>
+        <ul>
+          {tasks?.data.map((value) => (
+            <li key={value.id}>{JSON.stringify(value)}</li>
+          ))}
+        </ul>
+      </section>
+      <AddTask />
+      <EditList listId={listId} name={list?.name} color={list?.color} />
       <button
         className="border p-2"
         type="button"
-        onClick={() => {
-          deleteMutation.mutateAsync();
+        onClick={async () => {
+          await deleteMutation.mutateAsync();
         }}
       >
         delete
       </button>
-    </>
+    </div>
   );
 }

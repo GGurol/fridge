@@ -10,18 +10,38 @@ from app.core.models import Message, Task, TaskCreate, TaskPublic, TasksPublic
 router = APIRouter()
 
 
-@router.get("/", response_model=TasksPublic)
-def read_tasks(session: SessionDep, current_user: CurrentUserDep) -> Any:
+@router.get("/{list_id}", response_model=TasksPublic)
+def read_tasks(
+    session: SessionDep,
+    current_user: CurrentUserDep,
+    list_id: uuid.UUID,
+    skip: int = 0,
+    limit: int = 100,
+) -> Any:
     """
     Retrieve tasks.
     """
 
-    if current_user.is_admin:
-        return crud.read_family_tasks(
-            session=session, user_id=current_user.id, family_id=current_user.family_id
+    db_list = crud.read_list_by_id(session=session, id=list_id)
+
+    if not db_list:
+        raise HTTPException(status_code=404, detail="List not found")
+
+    if db_list.family_id and current_user.family_id != db_list.family_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Not enough permissions to read another family's tasks",
         )
 
-    return crud.read_user_tasks(session=session, user_id=current_user.id)
+    if db_list.user_id and current_user.id != db_list.user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Not enough permissions to read another users's tasks",
+        )
+
+    return crud.read_list_tasks(
+        session=session, list_id=list_id, skip=skip, limit=limit
+    )
 
 
 @router.post("/", response_model=TaskPublic)
@@ -33,17 +53,15 @@ def create_task(
     """
 
     if current_user.is_admin:
-        return crud.create_task(
-            session=session, task_in=task_in, user_id=task_in.user_id or current_user.id
-        )
+        return crud.create_task(session=session, task_in=task_in)
 
-    if task_in.user_id and task_in.user_id != current_user.id:
+    if task_in.user_id != current_user.id:
         raise HTTPException(
             status_code=403,
-            detail="Not enough permissions to assign tasks to others.",
+            detail="Not enough permissions to assign tasks to others",
         )
 
-    return crud.create_task(session=session, task_in=task_in, user_id=current_user.id)
+    return crud.create_task(session=session, task_in=task_in)
 
 
 @router.patch("/{id}", response_model=TaskPublic)
@@ -57,7 +75,6 @@ def complete_task(
     """
 
     task = crud.read_task_by_id(session=session, id=id)
-
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
 

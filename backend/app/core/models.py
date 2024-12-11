@@ -42,7 +42,7 @@ class UserBase(SQLModel):
 
     email: EmailStr = Field(unique=True, index=True, max_length=255)
     name: str | None = Field(default=None, max_length=255)
-    is_admin: bool = False
+    is_admin: bool = Field(default=False)
 
 
 class UserCreate(UserBase):
@@ -75,6 +75,11 @@ class User(UserBase, table=True):
 
     tasks: list["Task"] = Relationship(back_populates="user", cascade_delete=True)
     lists: list["List"] = Relationship(back_populates="user", cascade_delete=True)
+
+
+class UsersPublic(SQLModel):
+    data: list[UserPublic]
+    count: int
 
 
 class ListBase(SQLModel):

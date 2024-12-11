@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ListsService } from "~/client";
 import Spinner from "~/components/Common/Spinner";
 import AddList from "~/components/Lists/AddList";
+import AddTask from "~/components/Tasks/AddTask";
 import useAuth from "~/hooks/useAuth";
 
 export const Route = createFileRoute("/_layout/")({
@@ -102,6 +103,9 @@ function Home() {
             ))}
           </ul>
         </div>
+      </section>
+      <section>
+        <AddTask />
       </section>
     </div>
   );

@@ -14,7 +14,7 @@ export type Body_login_login_access_token = {
  */
 export type FamilyPublic = {
     name: string;
-    invite_code: string;
+    invite_code?: string;
     id: string;
 };
 
@@ -28,7 +28,7 @@ export type List = {
     /**
      * Hex color code in the format #1138CC
      */
-    color: string;
+    color?: string;
     id?: string;
     user_id?: (string | null);
     family_id?: (string | null);
@@ -40,7 +40,7 @@ export type ListCreate = {
     /**
      * Hex color code in the format #1138CC
      */
-    color: string;
+    color?: string;
 };
 
 export type ListDisplay = {
@@ -49,7 +49,7 @@ export type ListDisplay = {
     /**
      * Hex color code in the format #1138CC
      */
-    color: string;
+    color?: string;
     id: string;
     task_count: number;
 };
@@ -60,7 +60,7 @@ export type ListPublic = {
     /**
      * Hex color code in the format #1138CC
      */
-    color: string;
+    color?: string;
     id: string;
 };
 
@@ -142,6 +142,11 @@ export type UserPublic = {
     family_id: (string | null);
 };
 
+export type UsersPublic = {
+    data: Array<UserPublic>;
+    count: number;
+};
+
 export type ValidationError = {
     loc: Array<(string | number)>;
     msg: string;
@@ -197,6 +202,12 @@ export type LoginLoginAccessTokenResponse = (Token);
 
 export type PingPingResponse = (unknown);
 
+export type TasksReadTasksData = {
+    limit?: number;
+    listId: string;
+    skip?: number;
+};
+
 export type TasksReadTasksResponse = (TasksPublic);
 
 export type TasksCreateTaskData = {
@@ -218,6 +229,12 @@ export type TasksDeleteTaskData = {
 export type TasksDeleteTaskResponse = (Message);
 
 export type UsersReadUserMeResponse = (UserPublic);
+
+export type UsersReadFamilyMembersData = {
+    familyId: string;
+};
+
+export type UsersReadFamilyMembersResponse = (UsersPublic);
 
 export type UsersRegisterUserData = {
     requestBody: UserCreate;

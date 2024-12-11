@@ -57,7 +57,8 @@ class Settings(BaseSettings):
     TEST_USER: str
     TEST_USER_PASSWORD: str
 
-    DEFAULT_LIST: str
+    DEFAULT_PERSONAL_LIST: str
+    DEFAULT_FAMILY_LIST: str
 
     @computed_field
     @property

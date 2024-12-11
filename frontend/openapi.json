@@ -70,6 +70,45 @@
         "security": [{ "OAuth2PasswordBearer": [] }]
       }
     },
+    "/api/users/{family_id}": {
+      "get": {
+        "tags": ["users"],
+        "summary": "Read Family Members",
+        "description": "Reads family members.",
+        "operationId": "users-read_family_members",
+        "security": [{ "OAuth2PasswordBearer": [] }],
+        "parameters": [
+          {
+            "name": "family_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Family Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UsersPublic" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/users/signup": {
       "post": {
         "tags": ["users"],
@@ -208,12 +247,33 @@
         }
       }
     },
-    "/api/tasks/": {
+    "/api/tasks/{list_id}": {
       "get": {
         "tags": ["tasks"],
         "summary": "Read Tasks",
         "description": "Retrieve tasks.",
         "operationId": "tasks-read_tasks",
+        "security": [{ "OAuth2PasswordBearer": [] }],
+        "parameters": [
+          {
+            "name": "list_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "List Id" }
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 0, "title": "Skip" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 100, "title": "Limit" }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -222,10 +282,19 @@
                 "schema": { "$ref": "#/components/schemas/TasksPublic" }
               }
             }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
           }
-        },
-        "security": [{ "OAuth2PasswordBearer": [] }]
-      },
+        }
+      }
+    },
+    "/api/tasks/": {
       "post": {
         "tags": ["tasks"],
         "summary": "Create Task",
@@ -555,7 +624,7 @@
           "id": { "type": "string", "format": "uuid", "title": "Id" }
         },
         "type": "object",
-        "required": ["name", "invite_code", "id"],
+        "required": ["name", "id"],
         "title": "FamilyPublic",
         "description": "Class for family data to be returned via API"
       },
@@ -588,7 +657,8 @@
             "maxLength": 7,
             "minLength": 7,
             "title": "Color",
-            "description": "Hex color code in the format #1138CC"
+            "description": "Hex color code in the format #1138CC",
+            "default": "#3B82F6"
           },
           "id": { "type": "string", "format": "uuid", "title": "Id" },
           "user_id": {
@@ -607,7 +677,7 @@
           }
         },
         "type": "object",
-        "required": ["name", "color"],
+        "required": ["name"],
         "title": "List"
       },
       "ListCreate": {
@@ -628,11 +698,12 @@
             "maxLength": 7,
             "minLength": 7,
             "title": "Color",
-            "description": "Hex color code in the format #1138CC"
+            "description": "Hex color code in the format #1138CC",
+            "default": "#3B82F6"
           }
         },
         "type": "object",
-        "required": ["name", "color"],
+        "required": ["name"],
         "title": "ListCreate"
       },
       "ListDisplay": {
@@ -653,13 +724,14 @@
             "maxLength": 7,
             "minLength": 7,
             "title": "Color",
-            "description": "Hex color code in the format #1138CC"
+            "description": "Hex color code in the format #1138CC",
+            "default": "#3B82F6"
           },
           "id": { "type": "string", "format": "uuid", "title": "Id" },
           "task_count": { "type": "integer", "title": "Task Count" }
         },
         "type": "object",
-        "required": ["name", "color", "id", "task_count"],
+        "required": ["name", "id", "task_count"],
         "title": "ListDisplay"
       },
       "ListPublic": {
@@ -680,12 +752,13 @@
             "maxLength": 7,
             "minLength": 7,
             "title": "Color",
-            "description": "Hex color code in the format #1138CC"
+            "description": "Hex color code in the format #1138CC",
+            "default": "#3B82F6"
           },
           "id": { "type": "string", "format": "uuid", "title": "Id" }
         },
         "type": "object",
-        "required": ["name", "color", "id"],
+        "required": ["name", "id"],
         "title": "ListPublic"
       },
       "ListUpdate": {
@@ -916,6 +989,19 @@
         "required": ["email", "id", "family_id"],
         "title": "UserPublic",
         "description": "Class for user data to be returned via API, including the user's ID."
+      },
+      "UsersPublic": {
+        "properties": {
+          "data": {
+            "items": { "$ref": "#/components/schemas/UserPublic" },
+            "type": "array",
+            "title": "Data"
+          },
+          "count": { "type": "integer", "title": "Count" }
+        },
+        "type": "object",
+        "required": ["data", "count"],
+        "title": "UsersPublic"
       },
       "ValidationError": {
         "properties": {

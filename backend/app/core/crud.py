@@ -15,6 +15,7 @@ from app.core.models import (
     TasksPublic,
     User,
     UserCreate,
+    UsersPublic,
 )
 
 
@@ -33,8 +34,8 @@ def create_user(*, session: Session, user_create: UserCreate) -> User:
     return db_user
 
 
-def create_task(*, session: Session, task_in: TaskCreate, user_id: uuid.UUID) -> Task:
-    db_task = Task.model_validate(task_in, update={"user_id": user_id})
+def create_task(*, session: Session, task_in: TaskCreate) -> Task:
+    db_task = Task.model_validate(task_in)
     session.add(db_task)
     session.commit()
     session.refresh(db_task)
@@ -72,6 +73,18 @@ def read_personal_lists(
         data.append(list_display)
 
     return ListsPublic(data=data, count=count)
+
+
+def read_list_tasks(
+    *, session: Session, list_id: uuid.UUID, skip: int = 0, limit: int = 100
+) -> List:
+    count_statement = (
+        select(func.count()).select_from(Task).where(Task.list_id == list_id)
+    )
+    count = session.exec(count_statement).one()
+    statement = select(Task).where(Task.list_id == list_id).offset(skip).limit(limit)
+    tasks = session.exec(statement).all()
+    return TasksPublic(data=tasks, count=count)
 
 
 def read_family_lists(
@@ -134,6 +147,22 @@ def read_family_tasks(
     )
     tasks = session.exec(statement).all()
     return TasksPublic(data=tasks, count=count)
+
+
+def read_family_members(
+    *,
+    session: Session,
+    family_id: uuid.UUID,
+    skip: int = 0,
+    limit: int = 100,
+) -> UsersPublic:
+    count_statement = select(func.count(User.id)).where(User.family_id == family_id)
+    count = session.exec(count_statement).one()
+    statement = (
+        select(User).where(User.family_id == family_id).offset(skip).limit(limit)
+    )
+    users = session.exec(statement).all()
+    return UsersPublic(data=users, count=count)
 
 
 def create_family(*, session: Session, name: str) -> Family:
@@ -256,5 +285,15 @@ def read_family_by_invite_code(*, session: Session, invite_code: str) -> Family 
     """
 
     statement = select(Family).where(Family.invite_code == invite_code)
+    session_family = session.exec(statement).first()
+    return session_family
+
+
+def read_family_by_id(*, session: Session, id: uuid.UUID) -> Family | None:
+    """
+    Fetches a family from the database by their invite code.
+    """
+
+    statement = select(Family).where(Family.id == id)
     session_family = session.exec(statement).first()
     return session_family
