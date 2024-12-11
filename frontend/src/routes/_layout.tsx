@@ -14,7 +14,19 @@ export const Route = createFileRoute("/_layout")({
 });
 
 function Layout() {
-  const { isLoading } = useAuth();
+  const { isLoading, isError, userError } = useAuth();
 
-  return <div>{isLoading ? <Spinner /> : <Outlet />}</div>;
+  if (isLoading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return <>{userError?.message}</>;
+  }
+
+  return <Outlet />;
 }

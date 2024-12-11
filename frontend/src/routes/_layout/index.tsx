@@ -30,16 +30,16 @@ function Home() {
     queryFn: ListsService.readPersonalLists,
   });
 
-  if (isLoadingFamilyList) {
-    return <Spinner />;
+  if (isLoadingFamilyList || isLoadingPersonalList) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <Spinner />
+      </div>
+    );
   }
 
   if (isErrorFamilyList) {
     return <span>Error: {errorFamilyList.message}</span>;
-  }
-
-  if (isLoadingPersonalList) {
-    return <Spinner />;
   }
 
   if (isErrorPersonalList) {

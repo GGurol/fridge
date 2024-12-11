@@ -81,7 +81,10 @@ class ListBase(SQLModel):
     name: str = Field(min_length=1, max_length=255)
     is_family_list: bool = False
     color: str = Field(
-        min_length=7, max_length=7, description="Hex color code in the format #1138CC"
+        default="#3B82F6",
+        min_length=7,
+        max_length=7,
+        description="Hex color code in the format #1138CC",
     )
 
 

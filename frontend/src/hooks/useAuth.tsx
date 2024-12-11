@@ -21,7 +21,12 @@ const useAuth = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { data: user, isLoading } = useQuery<UserPublic | null, Error>({
+  const {
+    data: user,
+    isLoading,
+    isError,
+    error: userError,
+  } = useQuery<UserPublic | null, Error>({
     queryKey: ["currentUser"],
     queryFn: UsersService.readUserMe,
     enabled: isLoggedIn(),
@@ -99,6 +104,8 @@ const useAuth = () => {
     user,
     isLoading,
     error,
+    isError,
+    userError,
     resetError: () => setError(null),
   };
 };

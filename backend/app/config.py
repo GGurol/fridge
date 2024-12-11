@@ -57,6 +57,8 @@ class Settings(BaseSettings):
     TEST_USER: str
     TEST_USER_PASSWORD: str
 
+    DEFAULT_LIST: str
+
     @computed_field
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:

@@ -136,8 +136,8 @@ def read_family_tasks(
     return TasksPublic(data=tasks, count=count)
 
 
-def create_family(*, session: Session, name: str, db_user: User) -> Family:
-    db_family = Family(name=name, members=[db_user])
+def create_family(*, session: Session, name: str) -> Family:
+    db_family = Family(name=name)
     session.add(db_family)
     session.commit()
     session.refresh(db_family)
