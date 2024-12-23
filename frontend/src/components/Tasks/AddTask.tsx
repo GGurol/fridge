@@ -14,6 +14,7 @@ import {
 } from "~/client";
 import useAuth from "~/hooks/useAuth";
 import Spinner from "../Common/Spinner";
+import { useEffect, useRef, useState } from "react";
 
 function FieldInfo({ field }: { field: FieldApi<any, any, any, any> }) {
   return (
@@ -91,6 +92,7 @@ function AddTask() {
       await TasksService.createTask(data),
     onSuccess: () => {
       toast.success("Task has been created successfully.");
+      toggleModal();
     },
     onError: (err: ApiError) => {
       let errDetail = (err.body as any)?.detail;
@@ -111,6 +113,17 @@ function AddTask() {
       queryClient.invalidateQueries({ queryKey: ["personal-lists"] });
     },
   });
+  const [isOpen, setIsOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const toggleModal = () => {
+    setIsOpen(!isOpen);
+    form.reset();
+  };
+  useEffect(() => {
+    if (isOpen && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isOpen]);
 
   if (isLoadingMembers || isLoadingFamilyList || isLoadingPersonalList) {
     return (
@@ -134,126 +147,174 @@ function AddTask() {
 
   return (
     <>
-      <h1 className="text-center text-3xl">new task</h1>
-      <form
-        className="flex flex-col space-y-6"
-        onSubmit={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          form.handleSubmit();
-        }}
+      <button
+        className="flex items-center justify-center space-x-2 rounded-md border border-slate-400 p-2 font-semibold hover:bg-slate-200"
+        onClick={toggleModal}
       >
-        <div className="flex flex-col">
-          <form.Field
-            name="title"
-            children={(field) => {
-              return (
-                <>
-                  <input
-                    className="rounded-md border border-slate-400 p-2 outline-0"
-                    id={field.name}
-                    name={field.name}
-                    placeholder="Title"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="black"
+          viewBox="0 0 24 24"
+          strokeWidth={2.0}
+          stroke="white"
+          className="size-7"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+          />
+        </svg>
+        New Task
+      </button>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-slate-900 bg-opacity-50">
+          <div className="relative max-h-full w-full max-w-md">
+            <div className="relative rounded-lg bg-white shadow">
+              <form
+                className="flex flex-col space-y-6"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  form.handleSubmit();
+                }}
+              >
+                <section className="flex items-center justify-between border-b p-4">
+                  <button type="button" onClick={toggleModal}>
+                    Cancel
+                  </button>
+                  <h3 className="text-center text-xl font-bold text-slate-900">
+                    New Task
+                  </h3>
+                  <form.Subscribe
+                    selector={(state) => [state.canSubmit, state.isSubmitting]}
+                    children={([canSubmit, isSubmitting]) => (
+                      <button
+                        type="submit"
+                        disabled={!canSubmit}
+                        className="font-semibold text-slate-800 disabled:cursor-not-allowed disabled:text-slate-400"
+                      >
+                        {isSubmitting ? "..." : "Add list"}
+                      </button>
+                    )}
                   />
-                  <FieldInfo field={field} />
-                </>
-              );
-            }}
-          />
+                </section>
+                <section className="flex flex-col space-y-6 p-4">
+                  <div className="flex flex-col">
+                    <form.Field
+                      name="title"
+                      children={(field) => {
+                        return (
+                          <>
+                            <input
+                              className="rounded-md border border-slate-400 p-2 outline-0"
+                              id={field.name}
+                              name={field.name}
+                              placeholder="Title"
+                              ref={inputRef}
+                              value={field.state.value}
+                              onBlur={field.handleBlur}
+                              onChange={(e) =>
+                                field.handleChange(e.target.value)
+                              }
+                            />
+                            <FieldInfo field={field} />
+                          </>
+                        );
+                      }}
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <form.Field
+                      name="notes"
+                      children={(field) => {
+                        return (
+                          <>
+                            <input
+                              className="rounded-md border border-slate-400 p-2 outline-0"
+                              id={field.name}
+                              name={field.name}
+                              placeholder="Notes"
+                              value={field.state.value}
+                              onBlur={field.handleBlur}
+                              onChange={(e) =>
+                                field.handleChange(e.target.value)
+                              }
+                            />
+                            <FieldInfo field={field} />
+                          </>
+                        );
+                      }}
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <form.Field
+                      name="user_id"
+                      children={(field) => (
+                        <>
+                          <label htmlFor={field.name}>
+                            Assignee: <span className="text-red-500">*</span>
+                          </label>
+                          <select
+                            className="rounded-md border border-slate-400 p-2 outline-0"
+                            id={field.name}
+                            name={field.name}
+                            value={field.state.value}
+                            onBlur={field.handleBlur}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                          >
+                            <option value="">
+                              --Please choose an option--
+                            </option>
+                            {members?.data.map((user) => (
+                              <option key={user.id} value={user.id}>
+                                {user.name ?? user.email}
+                              </option>
+                            ))}
+                          </select>
+                          <FieldInfo field={field} />
+                        </>
+                      )}
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <form.Field
+                      name="list_id"
+                      children={(field) => (
+                        <>
+                          <label htmlFor={field.name}>
+                            List: <span className="text-red-500">*</span>
+                          </label>
+                          <select
+                            className="rounded-md border border-slate-400 p-2 outline-0"
+                            id={field.name}
+                            name={field.name}
+                            value={field.state.value}
+                            onBlur={field.handleBlur}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                          >
+                            <option value="">
+                              --Please choose an option--
+                            </option>
+                            {[...familyList?.data!, ...personalList?.data!].map(
+                              (list) => (
+                                <option key={list.id} value={list.id}>
+                                  {list.name}
+                                </option>
+                              ),
+                            )}
+                          </select>
+                          <FieldInfo field={field} />
+                        </>
+                      )}
+                    />
+                  </div>
+                </section>
+              </form>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col">
-          <form.Field
-            name="notes"
-            children={(field) => {
-              return (
-                <>
-                  <input
-                    className="rounded-md border border-slate-400 p-2 outline-0"
-                    id={field.name}
-                    name={field.name}
-                    placeholder="Notes"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                  <FieldInfo field={field} />
-                </>
-              );
-            }}
-          />
-        </div>
-        <div className="flex flex-col">
-          <form.Field
-            name="user_id"
-            children={(field) => (
-              <>
-                <label htmlFor={field.name}>
-                  Assignee: <span className="text-red-500">*</span>
-                </label>
-                <select
-                  id={field.name}
-                  name={field.name}
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                >
-                  <option value="">--Please choose an option--</option>
-                  {members?.data.map((user) => (
-                    <option key={user.id} value={user.id}>
-                      {user.name ?? user.email}
-                    </option>
-                  ))}
-                </select>
-                <FieldInfo field={field} />
-              </>
-            )}
-          />
-        </div>
-        <div className="flex flex-col">
-          <form.Field
-            name="list_id"
-            children={(field) => (
-              <>
-                <label htmlFor={field.name}>
-                  List: <span className="text-red-500">*</span>
-                </label>
-                <select
-                  id={field.name}
-                  name={field.name}
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                >
-                  <option value="">--Please choose an option--</option>
-                  {[...familyList?.data!, ...personalList?.data!].map(
-                    (list) => (
-                      <option key={list.id} value={list.id}>
-                        {list.name}
-                      </option>
-                    ),
-                  )}
-                </select>
-                <FieldInfo field={field} />
-              </>
-            )}
-          />
-        </div>
-        <form.Subscribe
-          selector={(state) => [state.canSubmit, state.isSubmitting]}
-          children={([canSubmit, isSubmitting]) => (
-            <button
-              type="submit"
-              disabled={!canSubmit}
-              className="rounded-md bg-slate-700 p-2 font-semibold text-slate-50 hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-700"
-            >
-              {isSubmitting ? "..." : "Add list"}
-            </button>
-          )}
-        />
-      </form>
+      )}
     </>
   );
 }
