@@ -28,5 +28,9 @@ function Layout() {
     return <>{userError?.message}</>;
   }
 
-  return <Outlet />;
+  return (
+    <div className="mx-auto max-w-3xl px-2 py-4">
+      <Outlet />
+    </div>
+  );
 }

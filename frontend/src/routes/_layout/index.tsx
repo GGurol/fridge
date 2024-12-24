@@ -50,15 +50,17 @@ function Home() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl">
-      <section className="mb-10 flex justify-between border-b px-4 py-2">
-        <h1 className="text-3xl">Hi, {user?.name || user?.email} 👋🏼</h1>
+    <>
+      <section className="mb-10 flex items-end justify-between">
+        <h1 className="p-2 text-sm text-slate-400">
+          Logged in as: {user?.email}
+        </h1>
         <button
           type="button"
           className="rounded-md border border-slate-400 p-2 hover:bg-slate-200"
           onClick={() => logout()}
         >
-          logout
+          Log Out
         </button>
       </section>
       <section>
@@ -78,7 +80,25 @@ function Home() {
                     ></div>
                     <div className="flex flex-1 justify-between font-semibold">
                       <span>{list.name}</span>
-                      <span className="text-slate-500">{list.task_count}</span>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-slate-500">
+                          {list.task_count}
+                        </span>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={3.0}
+                          stroke="currentColor"
+                          className="mt-[1px] size-4 text-slate-400"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="m8.25 4.5 7.5 7.5-7.5 7.5"
+                          />
+                        </svg>
+                      </div>
                     </div>
                   </div>
                 </Link>
@@ -102,7 +122,25 @@ function Home() {
                     ></div>
                     <div className="flex flex-1 justify-between border-slate-400 py-2 font-semibold">
                       <span>{list.name}</span>
-                      <span className="text-slate-500">{list.task_count}</span>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-slate-500">
+                          {list.task_count}
+                        </span>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={3.0}
+                          stroke="currentColor"
+                          className="mt-[1px] size-4 text-slate-400"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="m8.25 4.5 7.5 7.5-7.5 7.5"
+                          />
+                        </svg>
+                      </div>
                     </div>
                   </div>
                 </Link>
@@ -115,6 +153,6 @@ function Home() {
         <AddTask />
         <AddListMenu />
       </section>
-    </div>
+    </>
   );
 }

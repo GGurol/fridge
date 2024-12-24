@@ -1,11 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { AxiosError } from "axios";
-import toast from "react-hot-toast";
-import { ApiError, ListsService, TasksService } from "~/client";
+import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ListsService, TasksService } from "~/client";
 import Spinner from "~/components/Common/Spinner";
-import EditList from "~/components/Lists/EditList";
-import AddTask from "~/components/Tasks/AddTask";
+import SettingsMenu from "~/components/Lists/SettingsMenu";
 
 export const Route = createFileRoute("/_layout/lists/$listId")({
   component: List,
@@ -13,8 +10,7 @@ export const Route = createFileRoute("/_layout/lists/$listId")({
 
 function List() {
   const { listId } = Route.useParams();
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
+
   const {
     isLoading: isLoadingList,
     isError: isErrorList,
@@ -34,32 +30,6 @@ function List() {
     queryFn: () => TasksService.readTasks({ listId }),
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: async () => await ListsService.deleteList({ listId }),
-    onSuccess: () => {
-      navigate({ to: "/" });
-      toast.success("List has been deleted successfully");
-    },
-    onError: (err: ApiError) => {
-      let errDetail = (err.body as any)?.detail;
-
-      if (err instanceof AxiosError) {
-        errDetail = err.message;
-      }
-
-      if (Array.isArray(errDetail)) {
-        errDetail = "Something went wrong";
-      }
-
-      toast.error(`${errDetail}`);
-    },
-    onSettled: () => {
-      list?.is_family_list
-        ? queryClient.invalidateQueries({ queryKey: ["family-lists"] })
-        : queryClient.invalidateQueries({ queryKey: ["personal-lists"] });
-    },
-  });
-
   if (isLoadingList || isLoadingTasks) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
@@ -77,27 +47,49 @@ function List() {
   }
 
   return (
-    <div className="flex flex-col space-y-10">
-      <h1>{list?.name}</h1>
-      <h1 style={{ color: list?.color }}>COLOR</h1>
+    <>
+      <nav className="mb-5 flex items-center justify-between">
+        <Link to={"/"}>
+          <div className="flex items-center space-x-1 rounded-md border border-slate-400 p-2 hover:bg-slate-200">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={3.0}
+              stroke="currentColor"
+              className="mt-[1px] size-4 text-slate-900"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.75 19.5 8.25 12l7.5-7.5"
+              />
+            </svg>
+            <span className="text-slate-900">Home</span>
+          </div>
+        </Link>
+        <SettingsMenu list={list} />
+      </nav>
       <section>
-        <ul>
-          {tasks?.data.map((value) => (
-            <li key={value.id}>{JSON.stringify(value)}</li>
-          ))}
-        </ul>
+        <h1 style={{ color: list?.color }} className="text-3xl font-bold">
+          {list?.name}
+        </h1>
       </section>
-      <AddTask />
-      <EditList listId={listId} name={list?.name} color={list?.color} />
-      <button
-        className="border p-2"
-        type="button"
-        onClick={async () => {
-          await deleteMutation.mutateAsync();
-        }}
-      >
-        delete
-      </button>
-    </div>
+    </>
+
+    // <div className="flex flex-col space-y-10">
+    //   <h1>{list?.name}</h1>
+    //   <h1 style={{ color: list?.color }}>COLOR</h1>
+    //   <section>
+    //     <ul>
+    //       {tasks?.data.map((value) => (
+    //         <li key={value.id}>{JSON.stringify(value)}</li>
+    //       ))}
+    //     </ul>
+    //   </section>
+    //   <AddTask />
+    //   <EditList listId={listId} name={list?.name} color={list?.color} />
+
+    // </div>
   );
 }
