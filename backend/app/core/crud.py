@@ -1,6 +1,6 @@
 import uuid
 
-from sqlmodel import Session, func, select
+from sqlmodel import Session, delete, func, select
 
 from app.core import security
 from app.core.models import (
@@ -13,6 +13,7 @@ from app.core.models import (
     Task,
     TaskCreate,
     TasksPublic,
+    TaskUpdate,
     User,
     UserCreate,
     UsersPublic,
@@ -82,9 +83,21 @@ def read_list_tasks(
         select(func.count()).select_from(Task).where(Task.list_id == list_id)
     )
     count = session.exec(count_statement).one()
-    statement = select(Task).where(Task.list_id == list_id).offset(skip).limit(limit)
+    statement = (
+        select(Task)
+        .where(Task.list_id == list_id)
+        .order_by(Task.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+    )
     tasks = session.exec(statement).all()
     return TasksPublic(data=tasks, count=count)
+
+
+def clear_list_tasks(*, session: Session, list_id: uuid.UUID) -> None:
+    statement = delete(Task).where(Task.list_id == list_id, Task.completed)
+    session.exec(statement)
+    session.commit()
 
 
 def read_family_lists(
@@ -198,6 +211,15 @@ def update_list(*, session: Session, db_list: List, list_in: ListUpdate) -> List
     return db_list
 
 
+def update_task(*, session: Session, db_task: Task, task_in: TaskUpdate) -> List:
+    task_data = task_in.model_dump(exclude_unset=True)
+    db_task.sqlmodel_update(task_data)
+    session.add(db_task)
+    session.commit()
+    session.refresh(db_task)
+    return db_task
+
+
 def join_family(*, session: Session, db_user: User, family_id: uuid.UUID) -> User:
     db_user.sqlmodel_update({"family_id": family_id})
     session.add(db_user)
@@ -206,8 +228,8 @@ def join_family(*, session: Session, db_user: User, family_id: uuid.UUID) -> Use
     return db_user
 
 
-def complete_task(*, session: Session, db_task: Task) -> Task:
-    db_task.sqlmodel_update({"completed": True})
+def update_task_status(*, session: Session, db_task: Task, completed: bool) -> Task:
+    db_task.sqlmodel_update({"completed": completed})
     session.add(db_task)
     session.commit()
     session.refresh(db_task)

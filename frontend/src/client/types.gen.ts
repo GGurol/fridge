@@ -71,7 +71,6 @@ export type ListsPublic = {
 
 export type ListUpdate = {
     name?: (string | null);
-    is_family_list?: boolean;
     /**
      * Hex color code in the format #1138CC
      */
@@ -111,6 +110,13 @@ export type TaskPublic = {
 export type TasksPublic = {
     data: Array<Task>;
     count: number;
+};
+
+export type TaskUpdate = {
+    title: string;
+    notes?: (string | null);
+    completed?: boolean;
+    user_id: string;
 };
 
 /**
@@ -210,23 +216,37 @@ export type TasksReadTasksData = {
 
 export type TasksReadTasksResponse = (TasksPublic);
 
+export type TasksClearTasksData = {
+    listId: string;
+};
+
+export type TasksClearTasksResponse = (Message);
+
 export type TasksCreateTaskData = {
     requestBody: TaskCreate;
 };
 
 export type TasksCreateTaskResponse = (TaskPublic);
 
-export type TasksCompleteTaskData = {
-    id: string;
+export type TasksUpdateTaskData = {
+    requestBody: TaskUpdate;
+    taskId: string;
 };
 
-export type TasksCompleteTaskResponse = (TaskPublic);
+export type TasksUpdateTaskResponse = (TaskPublic);
 
 export type TasksDeleteTaskData = {
-    id: string;
+    taskId: string;
 };
 
 export type TasksDeleteTaskResponse = (Message);
+
+export type TasksUpdateTaskStatusData = {
+    completed: boolean;
+    taskId: string;
+};
+
+export type TasksUpdateTaskStatusResponse = (TaskPublic);
 
 export type UsersReadUserMeResponse = (UserPublic);
 

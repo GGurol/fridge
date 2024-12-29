@@ -1,12 +1,11 @@
 import { FieldApi, useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-form-adapter";
 import { AxiosError } from "axios";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { z } from "zod";
-import { ApiError, ListsService, ListsUpdateListData } from "~/client";
+import { ApiError, List, ListsService, ListsUpdateListData } from "~/client";
 
 const colors = [
   "#EF4444",
@@ -28,7 +27,7 @@ function FieldInfo({ field }: { field: FieldApi<any, any, any, any> }) {
   );
 }
 
-const listSchema = z.object({
+const editListSchema = z.object({
   name: z
     .string()
     .min(1, { message: "This field  is required" })
@@ -39,31 +38,28 @@ const listSchema = z.object({
     .length(7, { message: "Color must be a valid hex color" }),
 });
 
-type List = z.infer<typeof listSchema>;
+type EditList = z.infer<typeof editListSchema>;
 
 interface EditListProps {
-  listId: string;
-  name?: string;
-  color?: string;
+  list: List;
   onToggleMenu: () => void;
 }
 
-function EditList({ listId, name, color, onToggleMenu }: EditListProps) {
-  const navigate = useNavigate();
+function EditList({ list, onToggleMenu }: EditListProps) {
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const form = useForm({
     defaultValues: {
-      name: name,
-      color: color,
-    } as List,
+      name: list.name,
+      color: list.color,
+    } as EditList,
     onSubmit: async ({ value }) => {
-      await mutation.mutateAsync({ listId, requestBody: value });
+      await mutation.mutateAsync({ listId: list.id!, requestBody: value });
     },
     validatorAdapter: zodValidator(),
     validators: {
-      onSubmit: listSchema,
+      onSubmit: editListSchema,
     },
   });
   const mutation = useMutation({
@@ -89,7 +85,7 @@ function EditList({ listId, name, color, onToggleMenu }: EditListProps) {
       toast.error(`${errDetail}`);
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["list", listId] });
+      queryClient.invalidateQueries({ queryKey: ["list", list.id] });
     },
   });
   const toggleModal = () => {
@@ -150,9 +146,9 @@ function EditList({ listId, name, color, onToggleMenu }: EditListProps) {
                               className="rounded-md border border-slate-400 p-2 outline-0"
                               id={field.name}
                               name={field.name}
-                              placeholder={name}
+                              placeholder={list.name}
                               value={field.state.value}
-                              defaultValue={name}
+                              defaultValue={list.name}
                               onBlur={field.handleBlur}
                               onChange={(e) =>
                                 field.handleChange(e.target.value)
@@ -183,7 +179,7 @@ function EditList({ listId, name, color, onToggleMenu }: EditListProps) {
                               value={value}
                               onBlur={field.handleBlur}
                               type="radio"
-                              defaultChecked={value === color}
+                              defaultChecked={value === list.color}
                               onChange={(e) => {
                                 field.handleChange(e.target.value);
                               }}

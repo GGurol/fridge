@@ -97,7 +97,7 @@ class ListCreate(ListBase):
     pass
 
 
-class ListUpdate(ListBase):
+class ListUpdate(SQLModel):
     name: str | None = Field(default=None, min_length=1, max_length=255)
     color: str | None = Field(
         default=None,
@@ -145,6 +145,10 @@ class TaskBase(SQLModel):
 
 class TaskPublic(TaskBase):
     id: uuid.UUID
+
+
+class TaskUpdate(TaskBase):
+    user_id: uuid.UUID
 
 
 class TaskCreate(TaskBase):

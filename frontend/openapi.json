@@ -292,6 +292,39 @@
             }
           }
         }
+      },
+      "delete": {
+        "tags": ["tasks"],
+        "summary": "Clear Tasks",
+        "description": "Delete task",
+        "operationId": "tasks-clear_tasks",
+        "security": [{ "OAuth2PasswordBearer": [] }],
+        "parameters": [
+          {
+            "name": "list_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "List Id" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Message" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
       }
     },
     "/api/tasks/": {
@@ -329,21 +362,29 @@
         "security": [{ "OAuth2PasswordBearer": [] }]
       }
     },
-    "/api/tasks/{id}": {
+    "/api/tasks/{task_id}": {
       "patch": {
         "tags": ["tasks"],
-        "summary": "Complete Task",
-        "description": "Complete task.",
-        "operationId": "tasks-complete_task",
+        "summary": "Update Task",
+        "description": "Update task.",
+        "operationId": "tasks-update_task",
         "security": [{ "OAuth2PasswordBearer": [] }],
         "parameters": [
           {
-            "name": "id",
+            "name": "task_id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "format": "uuid", "title": "Id" }
+            "schema": { "type": "string", "format": "uuid", "title": "Task Id" }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/TaskUpdate" }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -371,10 +412,10 @@
         "security": [{ "OAuth2PasswordBearer": [] }],
         "parameters": [
           {
-            "name": "id",
+            "name": "task_id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "format": "uuid", "title": "Id" }
+            "schema": { "type": "string", "format": "uuid", "title": "Task Id" }
           }
         ],
         "responses": {
@@ -383,6 +424,47 @@
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/Message" }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tasks/{task_id}/status": {
+      "patch": {
+        "tags": ["tasks"],
+        "summary": "Update Task Status",
+        "description": "Update task status.",
+        "operationId": "tasks-update_task_status",
+        "security": [{ "OAuth2PasswordBearer": [] }],
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid", "title": "Task Id" }
+          },
+          {
+            "name": "completed",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "boolean", "title": "Completed" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TaskPublic" }
               }
             }
           },
@@ -770,11 +852,6 @@
             ],
             "title": "Name"
           },
-          "is_family_list": {
-            "type": "boolean",
-            "title": "Is Family List",
-            "default": false
-          },
           "color": {
             "anyOf": [
               { "type": "string", "maxLength": 7, "minLength": 7 },
@@ -896,6 +973,32 @@
         "type": "object",
         "required": ["title", "id"],
         "title": "TaskPublic"
+      },
+      "TaskUpdate": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Title"
+          },
+          "notes": {
+            "anyOf": [
+              { "type": "string", "maxLength": 255 },
+              { "type": "null" }
+            ],
+            "title": "Notes"
+          },
+          "completed": {
+            "type": "boolean",
+            "title": "Completed",
+            "default": false
+          },
+          "user_id": { "type": "string", "format": "uuid", "title": "User Id" }
+        },
+        "type": "object",
+        "required": ["title", "user_id"],
+        "title": "TaskUpdate"
       },
       "TasksPublic": {
         "properties": {

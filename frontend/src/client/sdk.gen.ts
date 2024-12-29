@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { FamiliesCreateFamilyData, FamiliesCreateFamilyResponse, FamiliesJoinFamilyData, FamiliesJoinFamilyResponse, ListsReadPersonalListsResponse, ListsReadFamilyListsResponse, ListsReadListData, ListsReadListResponse, ListsUpdateListData, ListsUpdateListResponse, ListsDeleteListData, ListsDeleteListResponse, ListsCreateListData, ListsCreateListResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, PingPingResponse, TasksReadTasksData, TasksReadTasksResponse, TasksCreateTaskData, TasksCreateTaskResponse, TasksCompleteTaskData, TasksCompleteTaskResponse, TasksDeleteTaskData, TasksDeleteTaskResponse, UsersReadUserMeResponse, UsersReadFamilyMembersData, UsersReadFamilyMembersResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersPromoteUserData, UsersPromoteUserResponse } from './types.gen';
+import type { FamiliesCreateFamilyData, FamiliesCreateFamilyResponse, FamiliesJoinFamilyData, FamiliesJoinFamilyResponse, ListsReadPersonalListsResponse, ListsReadFamilyListsResponse, ListsReadListData, ListsReadListResponse, ListsUpdateListData, ListsUpdateListResponse, ListsDeleteListData, ListsDeleteListResponse, ListsCreateListData, ListsCreateListResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, PingPingResponse, TasksReadTasksData, TasksReadTasksResponse, TasksClearTasksData, TasksClearTasksResponse, TasksCreateTaskData, TasksCreateTaskResponse, TasksUpdateTaskData, TasksUpdateTaskResponse, TasksDeleteTaskData, TasksDeleteTaskResponse, TasksUpdateTaskStatusData, TasksUpdateTaskStatusResponse, UsersReadUserMeResponse, UsersReadFamilyMembersData, UsersReadFamilyMembersResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersPromoteUserData, UsersPromoteUserResponse } from './types.gen';
 
 export class FamiliesService {
     /**
@@ -232,6 +232,27 @@ export class TasksService {
     }
     
     /**
+     * Clear Tasks
+     * Delete task
+     * @param data The data for the request.
+     * @param data.listId
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static clearTasks(data: TasksClearTasksData): CancelablePromise<TasksClearTasksResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/tasks/{list_id}',
+            path: {
+                list_id: data.listId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
      * Create Task
      * Create new task.
      * @param data The data for the request.
@@ -252,20 +273,23 @@ export class TasksService {
     }
     
     /**
-     * Complete Task
-     * Complete task.
+     * Update Task
+     * Update task.
      * @param data The data for the request.
-     * @param data.id
+     * @param data.taskId
+     * @param data.requestBody
      * @returns TaskPublic Successful Response
      * @throws ApiError
      */
-    public static completeTask(data: TasksCompleteTaskData): CancelablePromise<TasksCompleteTaskResponse> {
+    public static updateTask(data: TasksUpdateTaskData): CancelablePromise<TasksUpdateTaskResponse> {
         return __request(OpenAPI, {
             method: 'PATCH',
-            url: '/api/tasks/{id}',
+            url: '/api/tasks/{task_id}',
             path: {
-                id: data.id
+                task_id: data.taskId
             },
+            body: data.requestBody,
+            mediaType: 'application/json',
             errors: {
                 422: 'Validation Error'
             }
@@ -276,16 +300,41 @@ export class TasksService {
      * Delete Task
      * Delete task
      * @param data The data for the request.
-     * @param data.id
+     * @param data.taskId
      * @returns Message Successful Response
      * @throws ApiError
      */
     public static deleteTask(data: TasksDeleteTaskData): CancelablePromise<TasksDeleteTaskResponse> {
         return __request(OpenAPI, {
             method: 'DELETE',
-            url: '/api/tasks/{id}',
+            url: '/api/tasks/{task_id}',
             path: {
-                id: data.id
+                task_id: data.taskId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Update Task Status
+     * Update task status.
+     * @param data The data for the request.
+     * @param data.taskId
+     * @param data.completed
+     * @returns TaskPublic Successful Response
+     * @throws ApiError
+     */
+    public static updateTaskStatus(data: TasksUpdateTaskStatusData): CancelablePromise<TasksUpdateTaskStatusResponse> {
+        return __request(OpenAPI, {
+            method: 'PATCH',
+            url: '/api/tasks/{task_id}/status',
+            path: {
+                task_id: data.taskId
+            },
+            query: {
+                completed: data.completed
             },
             errors: {
                 422: 'Validation Error'

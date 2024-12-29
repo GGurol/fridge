@@ -10,7 +10,9 @@ import {
   TasksCreateTaskData,
   ListsService,
   UsersService,
-  TaskPublic,
+  TasksUpdateTaskStatusData,
+  TasksUpdateTaskData,
+  Task,
 } from "~/client";
 import useAuth from "~/hooks/useAuth";
 import Spinner from "../Common/Spinner";
@@ -27,7 +29,7 @@ function FieldInfo({ field }: { field: FieldApi<any, any, any, any> }) {
   );
 }
 
-const addTaskSchema = z.object({
+const editTaskSchema = z.object({
   title: z
     .string()
     .min(1, { message: "This field  is required" })
@@ -35,12 +37,15 @@ const addTaskSchema = z.object({
   notes: z.string().optional(),
   completed: z.boolean().default(false),
   user_id: z.string().min(1, { message: "This field  is required" }),
-  list_id: z.string().min(1, { message: "This field  is required" }),
 });
 
-type AddTask = z.infer<typeof addTaskSchema>;
+type EditTask = z.infer<typeof editTaskSchema>;
 
-function AddTask() {
+interface EditTaskProps {
+  task: Task;
+}
+
+function EditTask({ task }: EditTaskProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const {
@@ -53,45 +58,29 @@ function AddTask() {
     queryFn: () =>
       UsersService.readFamilyMembers({ familyId: user?.family_id! }),
   });
-  const {
-    isLoading: isLoadingFamilyList,
-    isError: isErrorFamilyList,
-    data: familyList,
-    error: errorFamilyList,
-  } = useQuery({
-    queryKey: ["family-lists"],
-    queryFn: ListsService.readFamilyLists,
-  });
-  const {
-    isLoading: isLoadingPersonalList,
-    isError: isErrorPersonalList,
-    data: personalList,
-    error: errorPersonalList,
-  } = useQuery({
-    queryKey: ["personal-lists"],
-    queryFn: ListsService.readPersonalLists,
-  });
+
   const form = useForm({
     defaultValues: {
-      title: "",
-      notes: "",
-      completed: false,
-      user_id: "",
-      list_id: "",
-    } as AddTask,
+      title: task.title,
+      notes: task.notes,
+      completed: task.completed,
+      user_id: task.user_id,
+    } as EditTask,
     onSubmit: async ({ value }) => {
-      await createMutation.mutateAsync({ requestBody: value });
+      await updateMutation.mutateAsync({
+        taskId: task.id!,
+        requestBody: value,
+      });
     },
     validatorAdapter: zodValidator(),
     validators: {
-      onSubmit: addTaskSchema,
+      onSubmit: editTaskSchema,
     },
   });
-  const createMutation = useMutation({
-    mutationFn: async (data: TasksCreateTaskData) =>
-      await TasksService.createTask(data),
+  const updateMutation = useMutation({
+    mutationFn: async (data: TasksUpdateTaskData) =>
+      await TasksService.updateTask(data),
     onSuccess: () => {
-      toast.success("Task has been created successfully.");
       toggleModal();
     },
     onError: (err: ApiError) => {
@@ -109,8 +98,6 @@ function AddTask() {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      queryClient.invalidateQueries({ queryKey: ["family-lists"] });
-      queryClient.invalidateQueries({ queryKey: ["personal-lists"] });
     },
   });
   const [isOpen, setIsOpen] = useState(false);
@@ -125,20 +112,12 @@ function AddTask() {
     }
   }, [isOpen]);
 
-  if (isLoadingMembers || isLoadingFamilyList || isLoadingPersonalList) {
+  if (isLoadingMembers) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <Spinner />
       </div>
     );
-  }
-
-  if (isErrorFamilyList) {
-    return <span>Error: {errorFamilyList.message}</span>;
-  }
-
-  if (isErrorPersonalList) {
-    return <span>Error: {errorPersonalList.message}</span>;
   }
 
   if (isErrorMembers) {
@@ -148,24 +127,10 @@ function AddTask() {
   return (
     <>
       <button
-        className="flex items-center justify-center space-x-2 rounded-md border border-slate-400 p-2 font-semibold hover:bg-slate-200"
+        className="flex items-center justify-center space-x-2 rounded-md border border-slate-400 px-2 py-1 text-sm hover:bg-slate-200"
         onClick={toggleModal}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="black"
-          viewBox="0 0 24 24"
-          strokeWidth={2.0}
-          stroke="white"
-          className="size-7"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-          />
-        </svg>
-        New Task
+        Edit
       </button>
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overflow-x-hidden bg-slate-900 bg-opacity-50">
@@ -184,7 +149,7 @@ function AddTask() {
                     Cancel
                   </button>
                   <h3 className="text-center text-xl font-bold text-slate-900">
-                    New Task
+                    Edit Task
                   </h3>
                   <form.Subscribe
                     selector={(state) => [state.canSubmit, state.isSubmitting]}
@@ -213,6 +178,7 @@ function AddTask() {
                               placeholder="Title"
                               ref={inputRef}
                               value={field.state.value}
+                              defaultValue={task.title}
                               onBlur={field.handleBlur}
                               onChange={(e) =>
                                 field.handleChange(e.target.value)
@@ -236,6 +202,7 @@ function AddTask() {
                               name={field.name}
                               placeholder="Notes"
                               value={field.state.value}
+                              defaultValue={task.notes ?? ""}
                               onBlur={field.handleBlur}
                               onChange={(e) =>
                                 field.handleChange(e.target.value)
@@ -260,6 +227,7 @@ function AddTask() {
                             id={field.name}
                             name={field.name}
                             value={field.state.value}
+                            defaultValue={task.user_id}
                             onBlur={field.handleBlur}
                             onChange={(e) => field.handleChange(e.target.value)}
                           >
@@ -277,38 +245,6 @@ function AddTask() {
                       )}
                     />
                   </div>
-                  <div className="flex flex-col">
-                    <form.Field
-                      name="list_id"
-                      children={(field) => (
-                        <>
-                          <label htmlFor={field.name}>
-                            List: <span className="text-red-500">*</span>
-                          </label>
-                          <select
-                            className="rounded-md border border-slate-400 p-2 outline-0"
-                            id={field.name}
-                            name={field.name}
-                            value={field.state.value}
-                            onBlur={field.handleBlur}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                          >
-                            <option value="">
-                              --Please choose an option--
-                            </option>
-                            {[...familyList?.data!, ...personalList?.data!].map(
-                              (list) => (
-                                <option key={list.id} value={list.id}>
-                                  {list.name}
-                                </option>
-                              ),
-                            )}
-                          </select>
-                          <FieldInfo field={field} />
-                        </>
-                      )}
-                    />
-                  </div>
                 </section>
               </form>
             </div>
@@ -319,4 +255,4 @@ function AddTask() {
   );
 }
 
-export default AddTask;
+export default EditTask;

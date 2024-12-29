@@ -1,8 +1,17 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ListsService, TasksService } from "~/client";
+import { AxiosError } from "axios";
+import toast from "react-hot-toast";
+import {
+  ApiError,
+  ListsService,
+  TasksClearTasksData,
+  TasksService,
+} from "~/client";
 import Spinner from "~/components/Common/Spinner";
 import SettingsMenu from "~/components/Lists/SettingsMenu";
+import AddTask from "~/components/Tasks/AddTask";
+import Task from "~/components/Tasks/Task";
 
 export const Route = createFileRoute("/_layout/lists/$listId")({
   component: List,
@@ -29,6 +38,31 @@ function List() {
     queryKey: ["tasks", listId],
     queryFn: () => TasksService.readTasks({ listId }),
   });
+  const queryClient = useQueryClient();
+  const clearMutation = useMutation({
+    mutationFn: async (data: TasksClearTasksData) =>
+      await TasksService.clearTasks(data),
+    onSuccess: () => {},
+    onError: (err: ApiError) => {
+      let errDetail = (err.body as any)?.detail;
+
+      if (err instanceof AxiosError) {
+        errDetail = err.message;
+      }
+
+      if (Array.isArray(errDetail)) {
+        errDetail = "Something went wrong";
+      }
+
+      toast.error(`${errDetail}`);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks", listId] });
+    },
+  });
+  const handleClear = async () => {
+    await clearMutation.mutateAsync({ listId });
+  };
 
   if (isLoadingList || isLoadingTasks) {
     return (
@@ -47,7 +81,7 @@ function List() {
   }
 
   return (
-    <>
+    <div>
       <nav className="mb-5 flex items-center justify-between">
         <Link to={"/"}>
           <div className="flex items-center space-x-1 rounded-md border border-slate-400 p-2 hover:bg-slate-200">
@@ -70,12 +104,30 @@ function List() {
         </Link>
         <SettingsMenu list={list} />
       </nav>
-      <section>
+      <section className="flex flex-col space-y-5">
         <h1 style={{ color: list?.color }} className="text-3xl font-bold">
           {list?.name}
         </h1>
+        <div className="flex items-center space-x-4 border-b pb-2">
+          <button
+            className="rounded-md border border-slate-400 p-1 text-sm hover:bg-slate-200"
+            onClick={handleClear}
+          >
+            Clear Completed
+          </button>
+        </div>
+        <ul className="flex flex-col space-y-2">
+          {tasks?.data.map((task) => (
+            <li key={task.id}>
+              <Task task={task} color={list?.color} listId={listId} />
+            </li>
+          ))}
+        </ul>
+        <div>
+          <AddTask />
+        </div>
       </section>
-    </>
+    </div>
 
     // <div className="flex flex-col space-y-10">
     //   <h1>{list?.name}</h1>
