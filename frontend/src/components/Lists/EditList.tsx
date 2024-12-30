@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FieldApi, useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { zodValidator } from "@tanstack/zod-form-adapter";
@@ -41,7 +42,7 @@ const editListSchema = z.object({
 type EditList = z.infer<typeof editListSchema>;
 
 interface EditListProps {
-  list: List;
+  list?: List;
   onToggleMenu: () => void;
 }
 
@@ -51,11 +52,13 @@ function EditList({ list, onToggleMenu }: EditListProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const form = useForm({
     defaultValues: {
-      name: list.name,
-      color: list.color,
+      name: list?.name,
+      color: list?.color,
     } as EditList,
     onSubmit: async ({ value }) => {
-      await mutation.mutateAsync({ listId: list.id!, requestBody: value });
+      if (list?.id) {
+        await mutation.mutateAsync({ listId: list.id, requestBody: value });
+      }
     },
     validatorAdapter: zodValidator(),
     validators: {
@@ -85,7 +88,7 @@ function EditList({ list, onToggleMenu }: EditListProps) {
       toast.error(`${errDetail}`);
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["list", list.id] });
+      queryClient.invalidateQueries({ queryKey: ["list", list?.id] });
     },
   });
   const toggleModal = () => {
@@ -146,9 +149,9 @@ function EditList({ list, onToggleMenu }: EditListProps) {
                               className="rounded-md border border-slate-400 p-2 outline-0"
                               id={field.name}
                               name={field.name}
-                              placeholder={list.name}
+                              placeholder={list?.name}
                               value={field.state.value}
-                              defaultValue={list.name}
+                              defaultValue={list?.name}
                               onBlur={field.handleBlur}
                               onChange={(e) =>
                                 field.handleChange(e.target.value)
@@ -179,7 +182,7 @@ function EditList({ list, onToggleMenu }: EditListProps) {
                               value={value}
                               onBlur={field.handleBlur}
                               type="radio"
-                              defaultChecked={value === list.color}
+                              defaultChecked={value === list?.color}
                               onChange={(e) => {
                                 field.handleChange(e.target.value);
                               }}

@@ -16,6 +16,7 @@ export const Route = createFileRoute("/login")({
   },
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function FieldInfo({ field }: { field: FieldApi<any, any, any, any> }) {
   return (
     <>

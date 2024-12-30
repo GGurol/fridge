@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FieldApi, useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { zodValidator } from "@tanstack/zod-form-adapter";
@@ -86,9 +87,11 @@ function AddList({ isFamilyList = false, onToggleMenu }: AddListProps) {
       toast.error(`${errDetail}`);
     },
     onSettled: () => {
-      isFamilyList
-        ? queryClient.invalidateQueries({ queryKey: ["family-lists"] })
-        : queryClient.invalidateQueries({ queryKey: ["personal-lists"] });
+      if (isFamilyList) {
+        queryClient.invalidateQueries({ queryKey: ["family-lists"] });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["personal-lists"] });
+      }
     },
   });
   const toggleModal = () => {

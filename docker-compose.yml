@@ -1,0 +1,106 @@
+services:
+
+  db:
+    image: postgres:12
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    volumes:
+      - app-db-data:/var/lib/postgresql/data/pgdata
+    env_file:
+      - .env
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
+      - POSTGRES_USER=${POSTGRES_USER?Variable not set}
+      - POSTGRES_DB=${POSTGRES_DB?Variable not set}
+  
+  prestart:
+    image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
+    build:
+      context: ./backend
+    networks:
+      - default
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+    command: bash scripts/prestart.sh
+    env_file:
+      - .env
+    environment:
+      - DOMAIN=${DOMAIN}
+      - FRONTEND_HOST=${FRONTEND_HOST?Variable not set}
+      - ENVIRONMENT=${ENVIRONMENT}
+      - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS}
+      - SECRET_KEY=${SECRET_KEY?Variable not set}
+      - ADMIN_USER=${ADMIN_USER?Variable not set}
+      - ADMIN_USER_PASSWORD=${ADMIN_USER_PASSWORD?Variable not set}
+      - POSTGRES_SERVER=db
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER?Variable not set}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
+
+  backend:
+    image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
+    restart: always
+    networks:
+      - default
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+      prestart:
+        condition: service_completed_successfully
+    env_file:
+      - .env
+    environment:
+      - DOMAIN=${DOMAIN}
+      - FRONTEND_HOST=${FRONTEND_HOST?Variable not set}
+      - ENVIRONMENT=${ENVIRONMENT}
+      - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS}
+      - SECRET_KEY=${SECRET_KEY?Variable not set}
+      - ADMIN_USER=${ADMIN_USER?Variable not set}
+      - ADMIN_USER_PASSWORD=${ADMIN_USER_PASSWORD?Variable not set}
+      - POSTGRES_SERVER=db
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER?Variable not set}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
+    ports:
+      - ${BACKEND_PORT}:${BACKEND_PORT}
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/ping/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    build:
+      context: ./backend
+ 
+  frontend:
+    image: '${DOCKER_IMAGE_FRONTEND?Variable not set}:${TAG-latest}'
+    restart: always
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - ${FRONTEND_PORT}:80
+    networks:
+      - default
+    build:
+      context: ./frontend
+      args:
+        - VITE_API_URL=http://${DOMAIN}:${BACKEND_PORT}
+        - NODE_ENV=production
+ 
+
+
+volumes:
+  app-db-data:

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FieldApi, useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { zodValidator } from "@tanstack/zod-form-adapter";
@@ -7,10 +8,7 @@ import { z } from "zod";
 import {
   ApiError,
   TasksService,
-  TasksCreateTaskData,
-  ListsService,
   UsersService,
-  TasksUpdateTaskStatusData,
   TasksUpdateTaskData,
   Task,
 } from "~/client";
@@ -55,8 +53,11 @@ function EditTask({ task }: EditTaskProps) {
     error: errorMembers,
   } = useQuery({
     queryKey: ["members"],
-    queryFn: () =>
-      UsersService.readFamilyMembers({ familyId: user?.family_id! }),
+    queryFn: () => {
+      if (user?.family_id) {
+        return UsersService.readFamilyMembers({ familyId: user.family_id });
+      }
+    },
   });
 
   const form = useForm({

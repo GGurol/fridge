@@ -41,12 +41,7 @@ function SettingsMenu({ list }: SettingsMenuProps) {
       {isOpen && (
         <ul className="absolute right-0 w-48 rounded-xl border bg-white shadow-sm">
           <li className="cursor-pointer border-b px-4 py-2 hover:bg-slate-200">
-            <EditList
-              listId={listId}
-              color={list?.color}
-              onToggleMenu={toggleMenu}
-              name={list?.name}
-            />
+            <EditList list={list} onToggleMenu={toggleMenu} />
           </li>
           <li className="cursor-pointer px-4 py-2 hover:bg-slate-200">
             <DeleteList listId={listId} is_family_list={list?.is_family_list} />

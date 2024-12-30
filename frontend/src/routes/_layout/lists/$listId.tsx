@@ -44,6 +44,7 @@ function List() {
       await TasksService.clearTasks(data),
     onSuccess: () => {},
     onError: (err: ApiError) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let errDetail = (err.body as any)?.detail;
 
       if (err instanceof AxiosError) {
@@ -128,20 +129,5 @@ function List() {
         </div>
       </section>
     </div>
-
-    // <div className="flex flex-col space-y-10">
-    //   <h1>{list?.name}</h1>
-    //   <h1 style={{ color: list?.color }}>COLOR</h1>
-    //   <section>
-    //     <ul>
-    //       {tasks?.data.map((value) => (
-    //         <li key={value.id}>{JSON.stringify(value)}</li>
-    //       ))}
-    //     </ul>
-    //   </section>
-    //   <AddTask />
-    //   <EditList listId={listId} name={list?.name} color={list?.color} />
-
-    // </div>
   );
 }

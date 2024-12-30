@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FieldApi, useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { zodValidator } from "@tanstack/zod-form-adapter";
@@ -10,7 +11,6 @@ import {
   TasksCreateTaskData,
   ListsService,
   UsersService,
-  TaskPublic,
 } from "~/client";
 import useAuth from "~/hooks/useAuth";
 import Spinner from "../Common/Spinner";
@@ -50,8 +50,11 @@ function AddTask() {
     error: errorMembers,
   } = useQuery({
     queryKey: ["members"],
-    queryFn: () =>
-      UsersService.readFamilyMembers({ familyId: user?.family_id! }),
+    queryFn: () => {
+      if (user?.family_id) {
+        return UsersService.readFamilyMembers({ familyId: user.family_id });
+      }
+    },
   });
   const {
     isLoading: isLoadingFamilyList,
@@ -144,6 +147,11 @@ function AddTask() {
   if (isErrorMembers) {
     return <span>Error: {errorMembers.message}</span>;
   }
+
+  const combinedLists = [
+    ...(familyList?.data || []),
+    ...(personalList?.data || []),
+  ];
 
   return (
     <>
@@ -296,13 +304,11 @@ function AddTask() {
                             <option value="">
                               --Please choose an option--
                             </option>
-                            {[...familyList?.data!, ...personalList?.data!].map(
-                              (list) => (
-                                <option key={list.id} value={list.id}>
-                                  {list.name}
-                                </option>
-                              ),
-                            )}
+                            {combinedLists.map((list) => (
+                              <option key={list.id} value={list.id}>
+                                {list.name}
+                              </option>
+                            ))}
                           </select>
                           <FieldInfo field={field} />
                         </>

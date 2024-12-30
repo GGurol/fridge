@@ -1,9 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
 import { ListsService } from "~/client";
 import Spinner from "~/components/Common/Spinner";
-import AddList from "~/components/Lists/AddList";
 import AddListMenu from "~/components/Lists/AddListMenu";
 import AddTask from "~/components/Tasks/AddTask";
 import useAuth from "~/hooks/useAuth";

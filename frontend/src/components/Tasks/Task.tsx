@@ -23,6 +23,7 @@ function Task({ task, color, listId }: TaskProps) {
       await TasksService.updateTaskStatus(data),
     onSuccess: () => {},
     onError: (err: ApiError) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let errDetail = (err.body as any)?.detail;
 
       if (err instanceof AxiosError) {

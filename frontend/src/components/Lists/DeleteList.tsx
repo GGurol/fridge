@@ -20,6 +20,7 @@ function DeleteList({ listId, is_family_list }: DeleteListProps) {
       toast.success("List has been deleted successfully");
     },
     onError: (err: ApiError) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let errDetail = (err.body as any)?.detail;
 
       if (err instanceof AxiosError) {
@@ -33,9 +34,11 @@ function DeleteList({ listId, is_family_list }: DeleteListProps) {
       toast.error(`${errDetail}`);
     },
     onSettled: () => {
-      is_family_list
-        ? queryClient.invalidateQueries({ queryKey: ["family-lists"] })
-        : queryClient.invalidateQueries({ queryKey: ["personal-lists"] });
+      if (is_family_list) {
+        queryClient.invalidateQueries({ queryKey: ["family-lists"] });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["personal-lists"] });
+      }
     },
   });
 
