@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from typing import TypedDict
 
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
@@ -192,3 +193,11 @@ class TokenPayload(SQLModel):
 
 class Message(SQLModel):
     message: str
+
+
+class UserRelationship(TypedDict):
+    user_id: uuid.UUID
+
+
+class FamilyRelationship(TypedDict):
+    family_id: uuid.UUID

@@ -7,7 +7,6 @@ from app.api.deps import CurrentUserDep, SessionDep
 from app.core import crud
 from app.core.models import (
     Message,
-    Task,
     TaskCreate,
     TaskPublic,
     TasksPublic,
@@ -58,14 +57,38 @@ def create_task(
     """
     Create new task.
     """
+    db_list = crud.read_list_by_id(session=session, id=task_in.list_id)
 
-    if current_user.is_admin:
+    if not db_list:
+        raise HTTPException(status_code=404, detail="List not found")
+
+    # Family list
+    if db_list.is_family_list:
+        if current_user.family_id != db_list.family_id:
+            raise HTTPException(
+                status_code=403,
+                detail="Not enough permissions to create a task in another family's list",
+            )
+
+        # Admins can assign tasks to anyone (including themselves)
+        if current_user.is_admin:
+            return crud.create_task(session=session, task_in=task_in)
+
+        # Regular users can only create tasks for themselves
+        if current_user.id != task_in.user_id:
+            raise HTTPException(
+                status_code=403,
+                detail="Not enough permissions to assign tasks to others",
+            )
+
         return crud.create_task(session=session, task_in=task_in)
 
-    if task_in.user_id != current_user.id:
+    # Personal list
+    # Tasks must always belong to the list owner
+    if current_user.id != db_list.user_id:
         raise HTTPException(
             status_code=403,
-            detail="Not enough permissions to assign tasks to others",
+            detail="Not enough permissions to create tasks in another user's list",
         )
 
     return crud.create_task(session=session, task_in=task_in)
@@ -128,7 +151,7 @@ def update_task_status(
     return crud.update_task_status(session=session, db_task=task, completed=completed)
 
 
-@router.delete("/{list_id}", response_model=Message)
+@router.delete("clear/{list_id}", response_model=Message)
 def clear_tasks(
     session: SessionDep, current_user: CurrentUserDep, list_id: uuid.UUID
 ) -> Any:
@@ -166,7 +189,7 @@ def delete_task(
     Delete task
     """
 
-    task = session.get(Task, task_id)
+    task = crud.read_task_by_id(session=session, id=task_id)
 
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")

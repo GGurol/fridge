@@ -60,6 +60,12 @@ def promote_user(
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
 
+    if current_admin.family_id != db_user.family_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Not enough permissions to promote another family's user",
+        )
+
     crud.promote_user_to_admin(session=session, db_user=db_user)
 
     crud.demote_admin_to_user(session=session, db_admin_user=current_admin)

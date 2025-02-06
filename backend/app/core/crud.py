@@ -5,6 +5,7 @@ from sqlmodel import Session, delete, func, select
 from app.core import security
 from app.core.models import (
     Family,
+    FamilyRelationship,
     List,
     ListCreate,
     ListDisplay,
@@ -16,6 +17,7 @@ from app.core.models import (
     TaskUpdate,
     User,
     UserCreate,
+    UserRelationship,
     UsersPublic,
 )
 
@@ -44,7 +46,10 @@ def create_task(*, session: Session, task_in: TaskCreate) -> Task:
 
 
 def create_list(
-    *, session: Session, list_in: ListCreate, relationship_data: dict
+    *,
+    session: Session,
+    list_in: ListCreate,
+    relationship_data: UserRelationship | FamilyRelationship,
 ) -> List:
     db_list = List.model_validate(list_in, update=relationship_data)
     session.add(db_list)
@@ -55,7 +60,7 @@ def create_list(
 
 def read_personal_lists(
     *, session: Session, user_id: uuid.UUID, skip: int = 0, limit: int = 100
-) -> List:
+) -> ListsPublic:
     count_statement = (
         select(func.count()).select_from(List).where(List.user_id == user_id)
     )
@@ -78,7 +83,7 @@ def read_personal_lists(
 
 def read_list_tasks(
     *, session: Session, list_id: uuid.UUID, skip: int = 0, limit: int = 100
-) -> List:
+) -> TasksPublic:
     count_statement = (
         select(func.count()).select_from(Task).where(Task.list_id == list_id)
     )
@@ -102,7 +107,7 @@ def clear_list_tasks(*, session: Session, list_id: uuid.UUID) -> None:
 
 def read_family_lists(
     *, session: Session, family_id: uuid.UUID, skip: int = 0, limit: int = 100
-) -> List:
+) -> ListsPublic:
     count_statement = (
         select(func.count()).select_from(List).where(List.family_id == family_id)
     )
@@ -133,31 +138,6 @@ def read_user_tasks(
     )
     count = session.exec(count_statement).one()
     statement = select(Task).where(Task.user_id == user_id).offset(skip).limit(limit)
-    tasks = session.exec(statement).all()
-    return TasksPublic(data=tasks, count=count)
-
-
-def read_family_tasks(
-    *,
-    session: Session,
-    user_id: uuid.UUID,
-    family_id: uuid.UUID,
-    skip: int = 0,
-    limit: int = 100,
-) -> TasksPublic:
-    count_statement = (
-        select(func.count(Task.id))
-        .join(User, User.id == Task.user_id)
-        .where(User.family_id == family_id)
-    )
-    count = session.exec(count_statement).one()
-    statement = (
-        select(Task)
-        .join(User, Task.user_id == User.id)
-        .where(User.family_id == family_id)
-        .offset(skip)
-        .limit(limit)
-    )
     tasks = session.exec(statement).all()
     return TasksPublic(data=tasks, count=count)
 
