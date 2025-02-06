@@ -171,6 +171,18 @@ export type FamiliesJoinFamilyData = {
 
 export type FamiliesJoinFamilyResponse = (FamilyPublic);
 
+export type FamiliesReadFamilyMembersData = {
+    familyId: string;
+};
+
+export type FamiliesReadFamilyMembersResponse = (UsersPublic);
+
+export type FamiliesReadFamilyInviteCodeData = {
+    familyId: string;
+};
+
+export type FamiliesReadFamilyInviteCodeResponse = (string);
+
 export type ListsReadPersonalListsResponse = (ListsPublic);
 
 export type ListsReadFamilyListsResponse = (ListsPublic);
@@ -206,6 +218,8 @@ export type LoginLoginAccessTokenData = {
 
 export type LoginLoginAccessTokenResponse = (Token);
 
+export type LoginTestTokenResponse = (UserPublic);
+
 export type PingPingResponse = (unknown);
 
 export type TasksReadTasksData = {
@@ -215,12 +229,6 @@ export type TasksReadTasksData = {
 };
 
 export type TasksReadTasksResponse = (TasksPublic);
-
-export type TasksClearTasksData = {
-    listId: string;
-};
-
-export type TasksClearTasksResponse = (Message);
 
 export type TasksCreateTaskData = {
     requestBody: TaskCreate;
@@ -248,13 +256,13 @@ export type TasksUpdateTaskStatusData = {
 
 export type TasksUpdateTaskStatusResponse = (TaskPublic);
 
-export type UsersReadUserMeResponse = (UserPublic);
-
-export type UsersReadFamilyMembersData = {
-    familyId: string;
+export type TasksClearTasksData = {
+    listId: string;
 };
 
-export type UsersReadFamilyMembersResponse = (UsersPublic);
+export type TasksClearTasksResponse = (Message);
+
+export type UsersReadUserMeResponse = (UserPublic);
 
 export type UsersRegisterUserData = {
     requestBody: UserCreate;

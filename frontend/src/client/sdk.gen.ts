@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { FamiliesCreateFamilyData, FamiliesCreateFamilyResponse, FamiliesJoinFamilyData, FamiliesJoinFamilyResponse, ListsReadPersonalListsResponse, ListsReadFamilyListsResponse, ListsReadListData, ListsReadListResponse, ListsUpdateListData, ListsUpdateListResponse, ListsDeleteListData, ListsDeleteListResponse, ListsCreateListData, ListsCreateListResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, PingPingResponse, TasksReadTasksData, TasksReadTasksResponse, TasksClearTasksData, TasksClearTasksResponse, TasksCreateTaskData, TasksCreateTaskResponse, TasksUpdateTaskData, TasksUpdateTaskResponse, TasksDeleteTaskData, TasksDeleteTaskResponse, TasksUpdateTaskStatusData, TasksUpdateTaskStatusResponse, UsersReadUserMeResponse, UsersReadFamilyMembersData, UsersReadFamilyMembersResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersPromoteUserData, UsersPromoteUserResponse } from './types.gen';
+import type { FamiliesCreateFamilyData, FamiliesCreateFamilyResponse, FamiliesJoinFamilyData, FamiliesJoinFamilyResponse, FamiliesReadFamilyMembersData, FamiliesReadFamilyMembersResponse, FamiliesReadFamilyInviteCodeData, FamiliesReadFamilyInviteCodeResponse, ListsReadPersonalListsResponse, ListsReadFamilyListsResponse, ListsReadListData, ListsReadListResponse, ListsUpdateListData, ListsUpdateListResponse, ListsDeleteListData, ListsDeleteListResponse, ListsCreateListData, ListsCreateListResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, PingPingResponse, TasksReadTasksData, TasksReadTasksResponse, TasksCreateTaskData, TasksCreateTaskResponse, TasksUpdateTaskData, TasksUpdateTaskResponse, TasksDeleteTaskData, TasksDeleteTaskResponse, TasksUpdateTaskStatusData, TasksUpdateTaskStatusResponse, TasksClearTasksData, TasksClearTasksResponse, UsersReadUserMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersPromoteUserData, UsersPromoteUserResponse } from './types.gen';
 
 export class FamiliesService {
     /**
@@ -41,6 +41,48 @@ export class FamiliesService {
             url: '/api/families/join',
             query: {
                 invite_code: data.inviteCode
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Family Members
+     * Reads family members.
+     * @param data The data for the request.
+     * @param data.familyId
+     * @returns UsersPublic Successful Response
+     * @throws ApiError
+     */
+    public static readFamilyMembers(data: FamiliesReadFamilyMembersData): CancelablePromise<FamiliesReadFamilyMembersResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/families/{family_id}/members',
+            path: {
+                family_id: data.familyId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Family Invite Code
+     * Reads family members.
+     * @param data The data for the request.
+     * @param data.familyId
+     * @returns string Successful Response
+     * @throws ApiError
+     */
+    public static readFamilyInviteCode(data: FamiliesReadFamilyInviteCodeData): CancelablePromise<FamiliesReadFamilyInviteCodeResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/families/{family_id}/invite-code',
+            path: {
+                family_id: data.familyId
             },
             errors: {
                 422: 'Validation Error'
@@ -186,6 +228,19 @@ export class LoginService {
         });
     }
     
+    /**
+     * Test Token
+     * Test access token
+     * @returns UserPublic Successful Response
+     * @throws ApiError
+     */
+    public static testToken(): CancelablePromise<LoginTestTokenResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/login/test-token'
+        });
+    }
+    
 }
 
 export class PingService {
@@ -224,27 +279,6 @@ export class TasksService {
             query: {
                 skip: data.skip,
                 limit: data.limit
-            },
-            errors: {
-                422: 'Validation Error'
-            }
-        });
-    }
-    
-    /**
-     * Clear Tasks
-     * Delete task
-     * @param data The data for the request.
-     * @param data.listId
-     * @returns Message Successful Response
-     * @throws ApiError
-     */
-    public static clearTasks(data: TasksClearTasksData): CancelablePromise<TasksClearTasksResponse> {
-        return __request(OpenAPI, {
-            method: 'DELETE',
-            url: '/api/tasks/{list_id}',
-            path: {
-                list_id: data.listId
             },
             errors: {
                 422: 'Validation Error'
@@ -342,6 +376,27 @@ export class TasksService {
         });
     }
     
+    /**
+     * Clear Tasks
+     * Delete task
+     * @param data The data for the request.
+     * @param data.listId
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static clearTasks(data: TasksClearTasksData): CancelablePromise<TasksClearTasksResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/tasksclear/{list_id}',
+            path: {
+                list_id: data.listId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
 }
 
 export class UsersService {
@@ -355,27 +410,6 @@ export class UsersService {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/users/me'
-        });
-    }
-    
-    /**
-     * Read Family Members
-     * Reads family members.
-     * @param data The data for the request.
-     * @param data.familyId
-     * @returns UsersPublic Successful Response
-     * @throws ApiError
-     */
-    public static readFamilyMembers(data: UsersReadFamilyMembersData): CancelablePromise<UsersReadFamilyMembersResponse> {
-        return __request(OpenAPI, {
-            method: 'GET',
-            url: '/api/users/{family_id}',
-            path: {
-                family_id: data.familyId
-            },
-            errors: {
-                422: 'Validation Error'
-            }
         });
     }
     

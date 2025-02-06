@@ -11,10 +11,12 @@ import {
   UsersService,
   TasksUpdateTaskData,
   Task,
+  FamiliesService,
 } from "~/client";
 import useAuth from "~/hooks/useAuth";
 import Spinner from "../Common/Spinner";
 import { useEffect, useRef, useState } from "react";
+import { Route } from "~/routes/_layout/lists/$listId";
 
 function FieldInfo({ field }: { field: FieldApi<any, any, any, any> }) {
   return (
@@ -45,6 +47,7 @@ interface EditTaskProps {
 
 function EditTask({ task }: EditTaskProps) {
   const { user } = useAuth();
+  const { listId } = Route.useParams();
   const queryClient = useQueryClient();
   const {
     isLoading: isLoadingMembers,
@@ -55,7 +58,7 @@ function EditTask({ task }: EditTaskProps) {
     queryKey: ["members"],
     queryFn: () => {
       if (user?.family_id) {
-        return UsersService.readFamilyMembers({ familyId: user.family_id });
+        return FamiliesService.readFamilyMembers({ familyId: user.family_id });
       }
     },
   });
@@ -98,7 +101,7 @@ function EditTask({ task }: EditTaskProps) {
       toast.error(`${errDetail}`);
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks", listId] });
     },
   });
   const [isOpen, setIsOpen] = useState(false);

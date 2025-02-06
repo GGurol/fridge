@@ -31,12 +31,9 @@ function FieldInfo({ field }: { field: FieldApi<any, any, any, any> }) {
 const userSchema = z.object({
   username: z
     .string()
-    .email({ message: "Email must be a valid email" })
+    .email({ message: "Invalid email address" })
     .max(255, { message: "Email must be 255 or fewer characters long" }),
-  password: z
-    .string()
-    .min(4, { message: "Password must be at least 4 characters" })
-    .max(40, { message: "Password must be 40 or fewer characters long" }),
+  password: z.string(),
 });
 
 type User = z.infer<typeof userSchema>;

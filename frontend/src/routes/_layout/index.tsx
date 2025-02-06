@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ListsService } from "~/client";
+import { useState } from "react";
+import { FamiliesService, ListsService } from "~/client";
 import Spinner from "~/components/Common/Spinner";
 import AddListMenu from "~/components/Lists/AddListMenu";
-import AddTask from "~/components/Tasks/AddTask";
 import useAuth from "~/hooks/useAuth";
 
 export const Route = createFileRoute("/_layout/")({
@@ -12,6 +12,7 @@ export const Route = createFileRoute("/_layout/")({
 
 function Home() {
   const { user, logout } = useAuth();
+  const [copied, setCopied] = useState(false);
   const {
     isLoading: isLoadingFamilyList,
     isError: isErrorFamilyList,
@@ -30,8 +31,35 @@ function Home() {
     queryKey: ["personal-lists"],
     queryFn: ListsService.readPersonalLists,
   });
+  const {
+    isLoading: isLoadingInviteCode,
+    isError: isErrorInviteCode,
+    data: inviteCode,
+    error: errorInviteCode,
+  } = useQuery({
+    queryKey: ["invite-code"],
+    queryFn: () => {
+      if (user?.family_id) {
+        return FamiliesService.readFamilyInviteCode({
+          familyId: user?.family_id,
+        });
+      }
+    },
+    enabled: !!user?.family_id,
+  });
+  const handleClick = async () => {
+    try {
+      if (inviteCode) {
+        await navigator.clipboard.writeText(inviteCode);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+    }
+  };
 
-  if (isLoadingFamilyList || isLoadingPersonalList) {
+  if (isLoadingFamilyList || isLoadingPersonalList || isLoadingInviteCode) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <Spinner />
@@ -47,6 +75,10 @@ function Home() {
     return <span>Error: {errorPersonalList.message}</span>;
   }
 
+  if (isErrorInviteCode) {
+    return <span>Error: {errorInviteCode.message}</span>;
+  }
+
   return (
     <>
       <section className="mb-10 flex items-end justify-between">
@@ -55,7 +87,7 @@ function Home() {
         </h1>
         <button
           type="button"
-          className="rounded-md border border-slate-400 p-2 hover:bg-slate-200"
+          className="rounded-md border border-slate-400 px-3 py-2 hover:bg-slate-200"
           onClick={() => logout()}
         >
           Log Out
@@ -147,9 +179,21 @@ function Home() {
           </ul>
         </div>
       </section>
-      <section className="my-24 flex w-full justify-between">
-        <AddTask />
+      <section className="my-14 flex w-full justify-between">
         <AddListMenu />
+      </section>
+      <section className="flex flex-col items-center justify-center space-y-2">
+        <h2 className="text-base text-slate-600">Invite your family members</h2>
+        <div className="flex">
+          <span
+            data-testid="invite-code"
+            onClick={handleClick}
+            className="cursor-pointer border bg-slate-100 px-3 py-2 text-lg font-bold text-slate-600"
+          >
+            {inviteCode}
+          </span>
+        </div>
+        {copied && <span>Copied!</span>}
       </section>
     </>
   );

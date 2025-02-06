@@ -1,3 +1,4 @@
+import uuid
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
@@ -5,7 +6,7 @@ from fastapi import APIRouter, HTTPException
 from app.api.deps import CurrentUserDep, SessionDep
 from app.config import settings
 from app.core import crud
-from app.core.models import FamilyPublic, ListCreate
+from app.core.models import FamilyPublic, ListCreate, UsersPublic
 
 router = APIRouter()
 
@@ -57,3 +58,39 @@ def join_family(
     )
 
     return family
+
+
+@router.get(
+    "/{family_id}/members",
+    response_model=UsersPublic,
+)
+def read_family_members(
+    session: SessionDep, current_user: CurrentUserDep, family_id: uuid.UUID
+) -> Any:
+    """
+    Reads family members.
+    """
+    if family_id != current_user.family_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Not enough permissions to access another family's members.",
+        )
+
+    return crud.read_family_members(session=session, family_id=family_id)
+
+
+@router.get("/{family_id}/invite-code", response_model=str)
+def read_family_invite_code(
+    session: SessionDep, current_user: CurrentUserDep, family_id: uuid.UUID
+) -> Any:
+    """
+    Reads family invite code.
+    """
+    if family_id != current_user.family_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Not enough permissions to access another family's invite code.",
+        )
+
+    family = crud.read_family_by_id(session=session, id=family_id)
+    return family.invite_code

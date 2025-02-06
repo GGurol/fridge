@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { FieldApi, useForm } from "@tanstack/react-form";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-form-adapter";
 import { AxiosError } from "axios";
@@ -47,6 +47,7 @@ type Create = z.infer<typeof createSchema>;
 type Join = z.infer<typeof joinSchema>;
 
 function Setup() {
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const createForm = useForm({
     defaultValues: { name: "" } as Create,
@@ -78,6 +79,9 @@ function Setup() {
 
       toast.error(`${errDetail}`);
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+    },
   });
 
   const joinForm = useForm({
@@ -91,8 +95,8 @@ function Setup() {
     },
   });
   const joinMutation = useMutation({
-    mutationFn: (data: FamiliesJoinFamilyData) =>
-      FamiliesService.joinFamily(data),
+    mutationFn: async (data: FamiliesJoinFamilyData) =>
+      await FamiliesService.joinFamily(data),
     onSuccess: () => {
       navigate({ to: "/" });
       toast.success("Joined the family successfully.");
@@ -109,6 +113,9 @@ function Setup() {
       }
 
       toast.error(`${errDetail}`);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
     },
   });
 

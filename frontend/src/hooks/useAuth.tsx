@@ -8,7 +8,6 @@ import {
   type Body_login_login_access_token as AccessToken,
   type ApiError,
   LoginService,
-  type UserPublic,
   type UserCreate,
   UsersService,
 } from "~/client";
@@ -27,7 +26,7 @@ const useAuth = () => {
     isLoading,
     isError,
     error: userError,
-  } = useQuery<UserPublic | null, Error>({
+  } = useQuery({
     queryKey: ["currentUser"],
     queryFn: UsersService.readUserMe,
     enabled: isLoggedIn(),

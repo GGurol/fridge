@@ -26,12 +26,12 @@ function AddListMenu() {
     <div className="relative" ref={menuRef}>
       <button
         onClick={toggleMenu}
-        className="rounded-md border border-slate-400 p-2 font-semibold text-slate-900 hover:bg-slate-200"
+        className="rounded-md border border-slate-400 px-3 py-2 font-semibold text-slate-900 hover:bg-slate-200"
       >
         Add list
       </button>
       {isOpen && (
-        <ul className="absolute bottom-12 right-0 w-48 rounded-xl border bg-white shadow-sm">
+        <ul className="absolute left-0 top-11 w-48 rounded-xl border bg-white shadow-sm">
           <li className="cursor-pointer border-b px-4 py-2 hover:bg-slate-200">
             <AddList onToggleMenu={toggleMenu} />
           </li>

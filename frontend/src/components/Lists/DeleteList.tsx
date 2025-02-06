@@ -6,10 +6,10 @@ import { ListsService, ApiError } from "~/client";
 
 interface DeleteListProps {
   listId: string;
-  is_family_list?: boolean;
+  isFamilyList?: boolean;
 }
 
-function DeleteList({ listId, is_family_list }: DeleteListProps) {
+function DeleteList({ listId, isFamilyList }: DeleteListProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -34,7 +34,7 @@ function DeleteList({ listId, is_family_list }: DeleteListProps) {
       toast.error(`${errDetail}`);
     },
     onSettled: () => {
-      if (is_family_list) {
+      if (isFamilyList) {
         queryClient.invalidateQueries({ queryKey: ["family-lists"] });
       } else {
         queryClient.invalidateQueries({ queryKey: ["personal-lists"] });

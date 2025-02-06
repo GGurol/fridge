@@ -1,11 +1,11 @@
 import uuid
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 
-from app.api.deps import CurrentAdminDep, CurrentUserDep, SessionDep, get_current_admin
+from app.api.deps import CurrentAdminDep, CurrentUserDep, SessionDep
 from app.core import crud
-from app.core.models import Message, UserCreate, UserPublic, UsersPublic
+from app.core.models import Message, UserCreate, UserPublic
 
 router = APIRouter()
 
@@ -17,19 +17,6 @@ def read_user_me(current_user: CurrentUserDep) -> Any:
     """
 
     return current_user
-
-
-@router.get(
-    "/{family_id}",
-    dependencies=[Depends(get_current_admin)],
-    response_model=UsersPublic,
-)
-def read_family_members(session: SessionDep, family_id: uuid.UUID) -> Any:
-    """
-    Reads family members.
-    """
-
-    return crud.read_family_members(session=session, family_id=family_id)
 
 
 @router.post("/signup", response_model=UserPublic)

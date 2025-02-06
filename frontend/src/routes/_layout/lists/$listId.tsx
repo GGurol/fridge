@@ -111,7 +111,7 @@ function List() {
         </h1>
         <div className="flex items-center space-x-4 border-b pb-2">
           <button
-            className="rounded-md border border-slate-400 p-1 text-sm hover:bg-slate-200"
+            className="rounded-md border border-slate-400 px-3 py-1 text-sm hover:bg-slate-200"
             onClick={handleClear}
           >
             Clear Completed
@@ -125,7 +125,7 @@ function List() {
           ))}
         </ul>
         <div>
-          <AddTask />
+          <AddTask isFamilyList={list?.is_family_list} />
         </div>
       </section>
     </div>

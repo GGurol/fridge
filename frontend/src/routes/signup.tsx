@@ -32,17 +32,19 @@ const userSignUpSchema = z
   .object({
     email: z
       .string()
-      .email({ message: "Email must be a valid email" })
+      .email({ message: "Invalid email address" })
       .max(255, { message: "Email must be 255 or fewer characters long" }),
     name: z
       .string()
       .max(255, { message: "Name must be 255 or fewer characters long" }),
     password: z
       .string()
+      .min(1, { message: "Password is required" })
       .min(4, { message: "Password must be at least 4 characters" })
       .max(40, { message: "Password must be 40 or fewer characters long" }),
     confirm_password: z
       .string()
+      .min(1, { message: "Password is required" })
       .min(4, { message: "Password must be at least 4 characters" })
       .max(40, { message: "Password must be 40 or fewer characters long" }),
   })

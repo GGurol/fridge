@@ -9,12 +9,12 @@ import {
   ApiError,
   TasksService,
   TasksCreateTaskData,
-  ListsService,
-  UsersService,
+  FamiliesService,
 } from "~/client";
 import useAuth from "~/hooks/useAuth";
 import Spinner from "../Common/Spinner";
 import { useEffect, useRef, useState } from "react";
+import { Route } from "~/routes/_layout/lists/$listId";
 
 function FieldInfo({ field }: { field: FieldApi<any, any, any, any> }) {
   return (
@@ -35,13 +35,17 @@ const addTaskSchema = z.object({
   notes: z.string().optional(),
   completed: z.boolean().default(false),
   user_id: z.string().min(1, { message: "This field  is required" }),
-  list_id: z.string().min(1, { message: "This field  is required" }),
 });
 
 type AddTask = z.infer<typeof addTaskSchema>;
 
-function AddTask() {
+interface AddTaskProps {
+  isFamilyList?: boolean;
+}
+
+function AddTask({ isFamilyList }: AddTaskProps) {
   const { user } = useAuth();
+  const { listId } = Route.useParams();
   const queryClient = useQueryClient();
   const {
     isLoading: isLoadingMembers,
@@ -52,38 +56,22 @@ function AddTask() {
     queryKey: ["members"],
     queryFn: () => {
       if (user?.family_id) {
-        return UsersService.readFamilyMembers({ familyId: user.family_id });
+        return FamiliesService.readFamilyMembers({ familyId: user.family_id });
       }
     },
   });
-  const {
-    isLoading: isLoadingFamilyList,
-    isError: isErrorFamilyList,
-    data: familyList,
-    error: errorFamilyList,
-  } = useQuery({
-    queryKey: ["family-lists"],
-    queryFn: ListsService.readFamilyLists,
-  });
-  const {
-    isLoading: isLoadingPersonalList,
-    isError: isErrorPersonalList,
-    data: personalList,
-    error: errorPersonalList,
-  } = useQuery({
-    queryKey: ["personal-lists"],
-    queryFn: ListsService.readPersonalLists,
-  });
+
   const form = useForm({
     defaultValues: {
       title: "",
       notes: "",
       completed: false,
       user_id: "",
-      list_id: "",
-    } as AddTask,
+    },
     onSubmit: async ({ value }) => {
-      await createMutation.mutateAsync({ requestBody: value });
+      await createMutation.mutateAsync({
+        requestBody: { ...value, list_id: listId },
+      });
     },
     validatorAdapter: zodValidator(),
     validators: {
@@ -111,9 +99,7 @@ function AddTask() {
       toast.error(`${errDetail}`);
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      queryClient.invalidateQueries({ queryKey: ["family-lists"] });
-      queryClient.invalidateQueries({ queryKey: ["personal-lists"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks", listId] });
     },
   });
   const [isOpen, setIsOpen] = useState(false);
@@ -128,7 +114,7 @@ function AddTask() {
     }
   }, [isOpen]);
 
-  if (isLoadingMembers || isLoadingFamilyList || isLoadingPersonalList) {
+  if (isLoadingMembers) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <Spinner />
@@ -136,22 +122,9 @@ function AddTask() {
     );
   }
 
-  if (isErrorFamilyList) {
-    return <span>Error: {errorFamilyList.message}</span>;
-  }
-
-  if (isErrorPersonalList) {
-    return <span>Error: {errorPersonalList.message}</span>;
-  }
-
   if (isErrorMembers) {
     return <span>Error: {errorMembers.message}</span>;
   }
-
-  const combinedLists = [
-    ...(familyList?.data || []),
-    ...(personalList?.data || []),
-  ];
 
   return (
     <>
@@ -267,48 +240,27 @@ function AddTask() {
                             className="rounded-md border border-slate-400 p-2 outline-0"
                             id={field.name}
                             name={field.name}
-                            value={field.state.value}
+                            // value={field.state.value}
+                            defaultValue={
+                              isFamilyList ? field.state.value : user?.id
+                            }
                             onBlur={field.handleBlur}
                             onChange={(e) => field.handleChange(e.target.value)}
                           >
                             <option value="">
                               --Please choose an option--
                             </option>
-                            {members?.data.map((user) => (
-                              <option key={user.id} value={user.id}>
-                                {user.name ?? user.email}
+                            {isFamilyList ? (
+                              members?.data.map((user) => (
+                                <option key={user.id} value={user.id}>
+                                  {user.name ? user.name : user.email}
+                                </option>
+                              ))
+                            ) : (
+                              <option key="single" value={user?.id}>
+                                {user?.name ? user?.name : user?.email}
                               </option>
-                            ))}
-                          </select>
-                          <FieldInfo field={field} />
-                        </>
-                      )}
-                    />
-                  </div>
-                  <div className="flex flex-col">
-                    <form.Field
-                      name="list_id"
-                      children={(field) => (
-                        <>
-                          <label htmlFor={field.name}>
-                            List: <span className="text-red-500">*</span>
-                          </label>
-                          <select
-                            className="rounded-md border border-slate-400 p-2 outline-0"
-                            id={field.name}
-                            name={field.name}
-                            value={field.state.value}
-                            onBlur={field.handleBlur}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                          >
-                            <option value="">
-                              --Please choose an option--
-                            </option>
-                            {combinedLists.map((list) => (
-                              <option key={list.id} value={list.id}>
-                                {list.name}
-                              </option>
-                            ))}
+                            )}
                           </select>
                           <FieldInfo field={field} />
                         </>

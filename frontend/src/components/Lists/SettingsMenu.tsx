@@ -44,7 +44,7 @@ function SettingsMenu({ list }: SettingsMenuProps) {
             <EditList list={list} onToggleMenu={toggleMenu} />
           </li>
           <li className="cursor-pointer px-4 py-2 hover:bg-slate-200">
-            <DeleteList listId={listId} is_family_list={list?.is_family_list} />
+            <DeleteList listId={listId} isFamilyList={list?.is_family_list} />
           </li>
         </ul>
       )}
