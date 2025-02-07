@@ -47,39 +47,6 @@ def test_register_user_already_exists(db: Session, client: TestClient) -> None:
     assert content["detail"] == "The user with this email already exists in the system"
 
 
-def test_read_family_members_regular_user(db: Session, client: TestClient) -> None:
-    user, password = register_random_user(db)
-
-    family_name = random_lower_string()
-    family = crud.create_family(session=db, name=family_name)
-
-    _ = crud.join_family(session=db, db_user=user, family_id=family.id)
-
-    headers = authenticate_user(client=client, email=user.email, password=password)
-
-    response = client.get(f"{settings.API_STR}/users/{family.id}", headers=headers)
-    assert response.status_code == 403
-    content = response.json()
-    assert content["detail"] == "The user doesn't have enough privileges"
-
-
-def test_read_family_members_admin_user(db: Session, client: TestClient) -> None:
-    admin, password = register_random_admin_user(db)
-    user, _ = register_random_user(db)
-
-    family_name = random_lower_string()
-    family = crud.create_family(session=db, name=family_name)
-
-    _ = crud.join_family(session=db, db_user=admin, family_id=family.id)
-    _ = crud.join_family(session=db, db_user=user, family_id=family.id)
-
-    headers = authenticate_user(client=client, email=admin.email, password=password)
-    response = client.get(f"{settings.API_STR}/users/{family.id}", headers=headers)
-    assert response.status_code == 200
-    content = response.json()
-    assert content["count"] == 2
-
-
 def test_promote_user_to_admin(db: Session, client: TestClient) -> None:
     admin, password = register_random_admin_user(db)
     user, _ = register_random_user(db)

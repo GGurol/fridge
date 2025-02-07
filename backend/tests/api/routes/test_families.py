@@ -3,7 +3,12 @@ from app.core import crud
 from fastapi.testclient import TestClient
 from sqlmodel import Session
 
-from tests.utils import authenticate_user, random_lower_string, register_random_user
+from tests.utils import (
+    authenticate_user,
+    random_lower_string,
+    register_random_admin_user,
+    register_random_user,
+)
 
 
 def test_create_family(db: Session, client: TestClient) -> None:
@@ -83,3 +88,20 @@ def test_create_family_user_already_part_of_family(
     assert response.status_code == 403
     content = response.json()
     assert content["detail"] == "User is already part of a family"
+
+
+def test_read_family_members(db: Session, client: TestClient) -> None:
+    admin, password = register_random_admin_user(db)
+    user, _ = register_random_user(db)
+
+    family_name = random_lower_string()
+    family = crud.create_family(session=db, name=family_name)
+
+    _ = crud.join_family(session=db, db_user=admin, family_id=family.id)
+    _ = crud.join_family(session=db, db_user=user, family_id=family.id)
+
+    headers = authenticate_user(client=client, email=admin.email, password=password)
+    r = client.get(f"{settings.API_STR}/families/{family.id}/members", headers=headers)
+    assert r.status_code == 200
+    content = r.json()
+    assert content["count"] == 2

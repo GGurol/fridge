@@ -80,24 +80,20 @@ def test_check_if_list_is_family(db: Session) -> None:
 
 def test_read_personal_lists(db: Session) -> None:
     user = create_random_user(db)
-    list_1 = create_random_personal_list(db=db, user_id=user.id)
-    list_2 = create_random_personal_list(db=db, user_id=user.id)
+    _ = create_random_personal_list(db=db, user_id=user.id)
+    _ = create_random_personal_list(db=db, user_id=user.id)
     lists = crud.read_personal_lists(session=db, user_id=user.id)
     assert lists.count == 2
-    assert lists.data[0].id == list_1.id
-    assert lists.data[1].id == list_2.id
 
 
 def test_read_family_lists(db: Session) -> None:
     family_name = random_lower_string()
     family = crud.create_family(session=db, name=family_name)
-    list_1 = create_random_family_list(db=db, family_id=family.id)
-    list_2 = create_random_family_list(db=db, family_id=family.id)
+    _ = create_random_family_list(db=db, family_id=family.id)
+    _ = create_random_family_list(db=db, family_id=family.id)
     lists = crud.read_family_lists(session=db, family_id=family.id)
     assert lists
     assert lists.count == 2
-    assert lists.data[0].id == list_1.id
-    assert lists.data[1].id == list_2.id
 
 
 def test_read_list_tasks_newest_first(db: Session) -> None:

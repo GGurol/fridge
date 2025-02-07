@@ -3,7 +3,7 @@
 set -e
 set -x
 
-# Let the DB start
+# Check the DB
 poetry run python app/check_db_connection.py
 
 # Run migrations
