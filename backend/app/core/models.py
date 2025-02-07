@@ -21,7 +21,7 @@ class FamilyBase(SQLModel):
 
 class Family(FamilyBase, table=True):
     """
-    Database model for a family, including an ID and relationships with family members.
+    Database model for a family.
     """
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -55,7 +55,9 @@ class UserCreate(UserBase):
 
 
 class UserPublic(UserBase):
-    """Class for user data to be returned via API, including the user's ID."""
+    """
+    Class for user data to be returned via API, including the user's ID.
+    """
 
     id: uuid.UUID
     family_id: uuid.UUID | None
@@ -63,7 +65,7 @@ class UserPublic(UserBase):
 
 class User(UserBase, table=True):
     """
-    Database model for a user, including a unique ID and hashed password.
+    Database model for a user.
     """
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -79,11 +81,19 @@ class User(UserBase, table=True):
 
 
 class UsersPublic(SQLModel):
+    """
+    Class for user data to be returned via API
+    """
+
     data: list[UserPublic]
     count: int
 
 
 class ListBase(SQLModel):
+    """
+    Base class for list data with shared properties.
+    """
+
     name: str = Field(min_length=1, max_length=255)
     is_family_list: bool = False
     color: str = Field(
@@ -99,6 +109,10 @@ class ListCreate(ListBase):
 
 
 class ListUpdate(SQLModel):
+    """
+    Update model for List
+    """
+
     name: str | None = Field(default=None, min_length=1, max_length=255)
     color: str | None = Field(
         default=None,
@@ -109,6 +123,10 @@ class ListUpdate(SQLModel):
 
 
 class List(ListBase, table=True):
+    """
+    Database  model for List
+    """
+
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
 
     user_id: uuid.UUID | None = Field(
@@ -125,39 +143,71 @@ class List(ListBase, table=True):
 
 
 class ListPublic(ListBase):
+    """
+    Class for list data to be returned via API.
+    """
+
     id: uuid.UUID
 
 
 class ListDisplay(ListBase):
+    """
+    Class for display list data to be returned via API.
+    """
+
     id: uuid.UUID
     task_count: int
 
 
 class ListsPublic(SQLModel):
+    """
+    Class for display lists data to be returned via API.
+    """
+
     data: list[ListDisplay]
     count: int
 
 
 class TaskBase(SQLModel):
+    """
+    Base class for task data with shared properties.
+    """
+
     title: str = Field(min_length=1, max_length=255)
     notes: str | None = Field(default=None, max_length=255)
     completed: bool = False
 
 
 class TaskPublic(TaskBase):
+    """
+    Class for list data to be returned via API.
+    """
+
     id: uuid.UUID
 
 
 class TaskUpdate(TaskBase):
+    """
+    Class for updating task.
+    """
+
     user_id: uuid.UUID
 
 
 class TaskCreate(TaskBase):
+    """
+    Class for creating task.
+    """
+
     user_id: uuid.UUID
     list_id: uuid.UUID
 
 
 class Task(TaskBase, table=True):
+    """
+    Database  model for List
+    """
+
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
@@ -170,6 +220,10 @@ class Task(TaskBase, table=True):
 
 
 class TasksPublic(SQLModel):
+    """
+    Class for display lists data to be returned via API.
+    """
+
     data: list[Task]
     count: int
 
@@ -192,12 +246,24 @@ class TokenPayload(SQLModel):
 
 
 class Message(SQLModel):
+    """
+    Class representing the message model.
+    """
+
     message: str
 
 
 class UserRelationship(TypedDict):
+    """
+    Class typing the user relationship data.
+    """
+
     user_id: uuid.UUID
 
 
 class FamilyRelationship(TypedDict):
+    """
+    Class typing the family relationship data.
+    """
+
     family_id: uuid.UUID

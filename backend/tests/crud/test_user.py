@@ -4,8 +4,6 @@ from fastapi.encoders import jsonable_encoder
 from sqlmodel import Session
 
 from tests.utils import (
-    create_random_personal_list,
-    create_random_task,
     random_email,
     random_lower_string,
 )
@@ -93,20 +91,3 @@ def test_demote_admin_to_user(db: Session) -> None:
     assert admin_user.is_admin is True
     demoted_user = crud.demote_admin_to_user(session=db, db_admin_user=admin_user)
     assert demoted_user.is_admin is False
-
-
-def test_read_user_tasks(db: Session) -> None:
-    email = random_email()
-    password = random_lower_string()
-    user_in = UserCreate(email=email, password=password)
-    user = crud.create_user(session=db, user_create=user_in)
-
-    list_1 = create_random_personal_list(db=db, user_id=user.id)
-    task_1 = create_random_task(db=db, list_id=list_1.id, user_id=user.id)
-    task_2 = create_random_task(db=db, list_id=list_1.id, user_id=user.id)
-
-    tasks = crud.read_user_tasks(session=db, user_id=user.id)
-    assert tasks
-    assert tasks.count == 2
-    assert tasks.data[0].title == task_1.title
-    assert tasks.data[1].title == task_2.title

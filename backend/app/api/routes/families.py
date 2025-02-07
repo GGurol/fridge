@@ -45,6 +45,7 @@ def join_family(
     """
     Join a family.
     """
+
     if current_user.family_id:
         raise HTTPException(status_code=403, detail="User is already part of a family")
 
@@ -86,6 +87,7 @@ def read_family_invite_code(
     """
     Reads family invite code.
     """
+
     if family_id != current_user.family_id:
         raise HTTPException(
             status_code=403,
