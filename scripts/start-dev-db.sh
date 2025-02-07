@@ -11,4 +11,3 @@ docker compose -f docker-compose.dev-db.yml up -d
 # Setup the db by running migrations and creating initial data
 cd backend
 ./scripts/setup-db.sh
-
