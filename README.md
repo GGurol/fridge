@@ -72,7 +72,15 @@ description for fridge
 
 ## How to use
 
-TODO
+### Requirements
+
+* [Docker](https://www.docker.com/).
+
+To spin up the stack run:
+
+```bash
+docker compose up -d --build
+```
 
 ## Backend Development
 
