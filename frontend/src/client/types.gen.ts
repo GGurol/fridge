@@ -22,6 +22,9 @@ export type HTTPValidationError = {
   detail?: Array<ValidationError>;
 };
 
+/**
+ * Database  model for List
+ */
 export type List = {
   name: string;
   is_family_list?: boolean;
@@ -43,6 +46,9 @@ export type ListCreate = {
   color?: string;
 };
 
+/**
+ * Class for display list data to be returned via API.
+ */
 export type ListDisplay = {
   name: string;
   is_family_list?: boolean;
@@ -54,6 +60,9 @@ export type ListDisplay = {
   task_count: number;
 };
 
+/**
+ * Class for list data to be returned via API.
+ */
 export type ListPublic = {
   name: string;
   is_family_list?: boolean;
@@ -64,11 +73,17 @@ export type ListPublic = {
   id: string;
 };
 
+/**
+ * Class for display lists data to be returned via API.
+ */
 export type ListsPublic = {
   data: Array<ListDisplay>;
   count: number;
 };
 
+/**
+ * Update model for List
+ */
 export type ListUpdate = {
   name?: string | null;
   /**
@@ -77,10 +92,16 @@ export type ListUpdate = {
   color?: string | null;
 };
 
+/**
+ * Class representing the message model.
+ */
 export type Message = {
   message: string;
 };
 
+/**
+ * Database  model for List
+ */
 export type Task = {
   title: string;
   notes?: string | null;
@@ -92,6 +113,9 @@ export type Task = {
   list_id: string;
 };
 
+/**
+ * Class for creating task.
+ */
 export type TaskCreate = {
   title: string;
   notes?: string | null;
@@ -100,6 +124,9 @@ export type TaskCreate = {
   list_id: string;
 };
 
+/**
+ * Class for list data to be returned via API.
+ */
 export type TaskPublic = {
   title: string;
   notes?: string | null;
@@ -107,11 +134,17 @@ export type TaskPublic = {
   id: string;
 };
 
+/**
+ * Class for display lists data to be returned via API.
+ */
 export type TasksPublic = {
   data: Array<Task>;
   count: number;
 };
 
+/**
+ * Class for updating task.
+ */
 export type TaskUpdate = {
   title: string;
   notes?: string | null;
@@ -148,6 +181,9 @@ export type UserPublic = {
   family_id: string | null;
 };
 
+/**
+ * Class for user data to be returned via API
+ */
 export type UsersPublic = {
   data: Array<UserPublic>;
   count: number;
@@ -263,6 +299,12 @@ export type TasksClearTasksData = {
 export type TasksClearTasksResponse = Message;
 
 export type UsersReadUserMeResponse = UserPublic;
+
+export type UsersReadUserData = {
+  userId: string;
+};
+
+export type UsersReadUserResponse = UserPublic;
 
 export type UsersRegisterUserData = {
   requestBody: UserCreate;

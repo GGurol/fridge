@@ -120,7 +120,12 @@ function List() {
         <ul className="flex flex-col space-y-2">
           {tasks?.data.map((task) => (
             <li key={task.id}>
-              <Task task={task} color={list?.color} listId={listId} />
+              <Task
+                task={task}
+                color={list?.color}
+                listId={listId}
+                isFamilyList={list?.is_family_list}
+              />
             </li>
           ))}
         </ul>

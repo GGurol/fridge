@@ -19,6 +19,20 @@ def read_user_me(current_user: CurrentUserDep) -> Any:
     return current_user
 
 
+@router.get("/{user_id}", response_model=UserPublic)
+def read_user(session: SessionDep, user_id: uuid.UUID) -> Any:
+    """
+    Retrieves a user's information by id.
+    """
+
+    db_user = crud.read_user_by_id(session=session, id=user_id)
+
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return db_user
+
+
 @router.post("/signup", response_model=UserPublic)
 def register_user(session: SessionDep, user_in: UserCreate) -> Any:
     """

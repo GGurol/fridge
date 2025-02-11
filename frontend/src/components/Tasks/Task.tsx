@@ -3,9 +3,10 @@ import {
   ApiError,
   TasksService,
   TasksUpdateTaskStatusData,
+  UsersService,
   type Task,
 } from "~/client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
 import EditTask from "./EditTask";
@@ -13,11 +14,16 @@ import EditTask from "./EditTask";
 interface TaskProps {
   task: Task;
   listId: string;
+  isFamilyList?: boolean;
   color?: string;
 }
 
-function Task({ task, color, listId }: TaskProps) {
+function Task({ task, color, isFamilyList, listId }: TaskProps) {
   const queryClient = useQueryClient();
+  const { data: user } = useQuery({
+    queryKey: ["user", task.user_id],
+    queryFn: () => UsersService.readUser({ userId: task.user_id }),
+  });
   const completeMutation = useMutation({
     mutationFn: async (data: TasksUpdateTaskStatusData) =>
       await TasksService.updateTaskStatus(data),
@@ -53,8 +59,8 @@ function Task({ task, color, listId }: TaskProps) {
 
   return (
     <>
-      <div className="flex items-start space-x-2 border-b py-2">
-        <div className="flex-none">
+      <div className="flex border-b py-2">
+        <div className="flex grow items-start space-x-2">
           <button
             key={task.id}
             className="flex h-5 w-5 rounded-full border-2 border-slate-400"
@@ -63,17 +69,22 @@ function Task({ task, color, listId }: TaskProps) {
             name={task.id}
             onClick={handleClick}
           />
-        </div>
-        <div className="grow">
-          <div className={clsx(task.completed && "text-slate-400")}>
-            {task.title}
+          <div className="grow">
+            <div className={clsx(task.completed && "text-slate-400")}>
+              {task.title}
+            </div>
+            <div className={clsx(task.completed && "text-slate-400")}>
+              {task.notes}
+            </div>
           </div>
-          <div className={clsx(task.completed && "text-slate-400")}>
-            {task.notes}
-          </div>
         </div>
-        <div className="flex-none">
-          <EditTask task={task} />
+        <div className="flex space-x-4">
+          <div>
+            <span>{user?.name ? user.name : user?.email}</span>
+          </div>
+          <div className="flex h-1/2 flex-none space-x-4">
+            <EditTask isFamilyList={isFamilyList} task={task} />
+          </div>
         </div>
       </div>
     </>

@@ -42,9 +42,10 @@ type EditTask = z.infer<typeof editTaskSchema>;
 
 interface EditTaskProps {
   task: Task;
+  isFamilyList?: boolean;
 }
 
-function EditTask({ task }: EditTaskProps) {
+function EditTask({ task, isFamilyList }: EditTaskProps) {
   const { user } = useAuth();
   const { listId } = Route.useParams();
   const queryClient = useQueryClient();
@@ -237,11 +238,17 @@ function EditTask({ task }: EditTaskProps) {
                             <option value="">
                               --Please choose an option--
                             </option>
-                            {members?.data.map((user) => (
-                              <option key={user.id} value={user.id}>
-                                {user.name ?? user.email}
+                            {isFamilyList ? (
+                              members?.data.map((user) => (
+                                <option key={user.id} value={user.id}>
+                                  {user.name ? user.name : user.email}
+                                </option>
+                              ))
+                            ) : (
+                              <option key="single" value={user?.id}>
+                                {user?.name ? user?.name : user?.email}
                               </option>
-                            ))}
+                            )}
                           </select>
                           <FieldInfo field={field} />
                         </>

@@ -66,9 +66,10 @@ function AddTask({ isFamilyList }: AddTaskProps) {
       title: "",
       notes: "",
       completed: false,
-      user_id: "",
+      user_id: user?.id ?? "",
     },
     onSubmit: async ({ value }) => {
+      console.log(value);
       await createMutation.mutateAsync({
         requestBody: { ...value, list_id: listId },
       });
@@ -240,10 +241,7 @@ function AddTask({ isFamilyList }: AddTaskProps) {
                             className="rounded-md border border-slate-400 p-2 outline-0"
                             id={field.name}
                             name={field.name}
-                            // value={field.state.value}
-                            defaultValue={
-                              isFamilyList ? field.state.value : user?.id
-                            }
+                            value={field.state.value}
                             onBlur={field.handleBlur}
                             onChange={(e) => field.handleChange(e.target.value)}
                           >

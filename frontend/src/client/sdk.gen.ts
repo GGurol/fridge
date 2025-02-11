@@ -39,6 +39,8 @@ import type {
   TasksClearTasksData,
   TasksClearTasksResponse,
   UsersReadUserMeResponse,
+  UsersReadUserData,
+  UsersReadUserResponse,
   UsersRegisterUserData,
   UsersRegisterUserResponse,
   UsersPromoteUserData,
@@ -191,7 +193,7 @@ export class ListsService {
 
   /**
    * Update List
-   * Update a list.
+   * Update list.
    * @param data The data for the request.
    * @param data.listId
    * @param data.requestBody
@@ -442,7 +444,7 @@ export class TasksService {
 
   /**
    * Clear Tasks
-   * Delete task
+   * Clears a lists tasks. Only completed tasks will get cleared.
    * @param data The data for the request.
    * @param data.listId
    * @returns Message Successful Response
@@ -479,6 +481,29 @@ export class UsersService {
   }
 
   /**
+   * Read User
+   * Retrieves a user's information by id.
+   * @param data The data for the request.
+   * @param data.userId
+   * @returns UserPublic Successful Response
+   * @throws ApiError
+   */
+  public static readUser(
+    data: UsersReadUserData,
+  ): CancelablePromise<UsersReadUserResponse> {
+    return __request(OpenAPI, {
+      method: "GET",
+      url: "/api/users/{user_id}",
+      path: {
+        user_id: data.userId,
+      },
+      errors: {
+        422: "Validation Error",
+      },
+    });
+  }
+
+  /**
    * Register User
    * Create new user without the need to be logged in.
    * @param data The data for the request.
@@ -502,6 +527,7 @@ export class UsersService {
 
   /**
    * Promote User
+   * Promotes a user to admin. The current admin gets demoted to regular user.
    * @param data The data for the request.
    * @param data.userId
    * @returns Message Successful Response
