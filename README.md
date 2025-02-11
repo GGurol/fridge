@@ -50,8 +50,8 @@ description for fridge
 [![API docs](img/add-task.png)](https://github.com/david-miklos/fridge)
 
 ### Tasks
-TODO
-[![API docs](img/add-task.png)](https://github.com/david-miklos/fridge)
+
+[![API docs](img/tasks.png)](https://github.com/david-miklos/fridge)
 
 ### Interactive API Documentation
 
