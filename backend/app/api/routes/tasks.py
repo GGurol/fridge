@@ -156,7 +156,7 @@ def clear_tasks(
     session: SessionDep, current_user: CurrentUserDep, list_id: uuid.UUID
 ) -> Any:
     """
-    Delete task
+    Clears a lists tasks. Only completed tasks will get cleared.
     """
 
     db_list = crud.read_list_by_id(session=session, id=list_id)

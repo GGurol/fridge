@@ -10,7 +10,7 @@ services:
       start_period: 30s
       timeout: 10s
     volumes:
-      - app-db-data:/var/lib/postgresql/data/pgdata
+      - fridge-db-data:/var/lib/postgresql/data/pgdata
     env_file:
       - .env
     environment:
@@ -19,7 +19,7 @@ services:
       - POSTGRES_USER=${POSTGRES_USER?Variable not set}
       - POSTGRES_DB=${POSTGRES_DB?Variable not set}
 
-  prestart:
+  setup:
     image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
     build:
       context: ./backend
@@ -29,7 +29,7 @@ services:
       db:
         condition: service_healthy
         restart: true
-    command: bash scripts/prestart.sh
+    command: bash scripts/setup-db.sh
     env_file:
       - .env
     environment:
@@ -55,7 +55,7 @@ services:
       db:
         condition: service_healthy
         restart: true
-      prestart:
+      setup:
         condition: service_completed_successfully
     env_file:
       - .env
@@ -102,4 +102,4 @@ services:
 
 
 volumes:
-  app-db-data:
+  fridge-db-data:

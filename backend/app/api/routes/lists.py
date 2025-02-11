@@ -79,7 +79,7 @@ def update_list(
     list_in: ListUpdate,
 ) -> Any:
     """
-    Update a list.
+    Update list.
     """
 
     db_list = crud.read_list_by_id(session=session, id=list_id)

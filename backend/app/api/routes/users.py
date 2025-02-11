@@ -22,9 +22,9 @@ def read_user_me(current_user: CurrentUserDep) -> Any:
 @router.post("/signup", response_model=UserPublic)
 def register_user(session: SessionDep, user_in: UserCreate) -> Any:
     """
-
     Create new user without the need to be logged in.
     """
+
     user = crud.read_user_by_email(session=session, email=user_in.email)
 
     if user:
@@ -42,6 +42,10 @@ def register_user(session: SessionDep, user_in: UserCreate) -> Any:
 def promote_user(
     session: SessionDep, current_admin: CurrentAdminDep, user_id: uuid.UUID
 ) -> Any:
+    """
+    Promotes a user to admin. The current admin gets demoted to regular user.
+    """
+
     db_user = crud.read_user_by_id(session=session, id=user_id)
 
     if not db_user:
