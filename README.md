@@ -2,9 +2,9 @@
 
 I created this project to demonstrate my coding style and some of the skills I've developed. My goal was to build something that touches on key aspects of full-stack development, like databases, frontend and backend, authentication, role-based systems, testing, and more.
 
-I decided to build a family reminders application, which I named "Fridge" — inspired by the sticky notes often found on the fridge in the family kitchen! 😁
+The project is a family reminders app, named **"Fridge"**, inspired by the sticky notes commonly found on a family kitchen fridge! 😁
 
-I aimed to demonstrate the complete application lifecycle, with a focus on the developer workflow, from idea conception and coding to testing and deployment. The stack I chose reflects these aspects and showcases the technologies I am most comfortable with.
+I aimed to demonstrate the complete application lifecycle, focusing on the developer workflow — coding to testing and deployment. The stack I chose reflects these aspects and showcases the technologies I am most comfortable with.
 
 
 ## Technology Stack and Features
