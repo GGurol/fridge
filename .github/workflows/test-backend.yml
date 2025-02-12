@@ -1,0 +1,26 @@
+name: Test Backend
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: docker compose build
+      - run: docker compose down -v --remove-orphans
+      - run: docker compose up -d
+      - name: Lint
+        run: docker compose exec -T backend bash /app/scripts/lint.sh
+      - name: Run tests
+        run: docker compose exec -T backend bash /workspace/scripts/test.sh
+      - name: Cleanup
+        run: docker compose down -v --remove-orphans

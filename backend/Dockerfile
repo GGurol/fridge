@@ -9,6 +9,7 @@ RUN curl -sSL https://install.python-poetry.org | POETRY_HOME=/opt/poetry python
     poetry config virtualenvs.create false
 
 COPY ./scripts /workspace/scripts
+COPY ./tests /workspace/tests
 COPY ./alembic /workspace/alembic
 COPY ./alembic.ini /workspace/
 
