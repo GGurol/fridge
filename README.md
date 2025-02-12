@@ -82,7 +82,40 @@ To spin up the stack run:
 docker compose up -d --build
 ```
 
+Frontend: http://localhost
+
+Backend API docs: http://localhost:8000/docs
+
+Backend API base URL: http://localhost:8000/api -> http://localhost:8000/api/ping/ for health check
+
+## Development
+
+For dev
+
+# Start the dev db
+docker compose -f docker-compose.dev-db.yml down -v --remove-orphans # Remove possibly previous broken stacks left hanging after an error
+docker compose -f docker-compose.dev-db.yml build
+docker compose -f docker-compose.dev-db.yml up -d
+
 ## Backend Development
+
+## Requirements
+
+* [Docker](https://www.docker.com/).
+* [Poetry](https://python-poetry.org/) for Python package and environment management.
+
+Install the dependencies
+
+```bash
+poetry install
+```
+
+Run the development server
+
+```bash
+poetry run fastapi dev app/main.py
+```
+
 
 Backend docs: [backend/README.md](./backend/README.md).
 

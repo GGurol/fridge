@@ -15,7 +15,7 @@ COPY ./alembic.ini /workspace/
 # Copy poetry.lock* in case it doesn't exist in the repo
 COPY ./pyproject.toml ./poetry.lock* /workspace/
 
-RUN poetry install
+RUN poetry install --no-root
 
 ENV PYTHONPATH=/workspace
 

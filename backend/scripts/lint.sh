@@ -3,4 +3,4 @@
 set -e
 set -x
 
-poetry run ruff check app --fix
+ruff check app --fix
