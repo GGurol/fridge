@@ -1,5 +1,8 @@
 # Fridge
 
+![test-backend workflow](https://github.com/david-miklos/fridge/actions/workflows/test-backend.yml/badge.svg)
+![test-frontend workflow](https://github.com/david-miklos/fridge/actions/workflows/test-frontend.yml/badge.svg)
+
 I created this project to demonstrate my coding style and some of the skills I've developed. My goal was to build something that touches on key aspects of full-stack development, like databases, frontend and backend, authentication, role-based systems, testing, CI/CD and more.
 
 The project is a family reminders app, named **"Fridge"**, inspired by the sticky notes commonly found on a family kitchen fridge! 😁
