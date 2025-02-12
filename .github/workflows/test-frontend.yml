@@ -1,9 +1,9 @@
-name: Test Frontend
+name: Test Frontend - Playwright
 
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   test:
