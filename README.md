@@ -86,7 +86,15 @@ I aimed to demonstrate the complete application lifecycle, focusing on the devel
 
 * [Docker](https://www.docker.com/).
 
-To spin up the stack run:
+### Installation ###
+
+```bash
+git clone https://github.com/GGurol/fridge.git
+```
+
+```bash
+cd fridge
+```
 
 ```bash
 docker compose up -d --build
