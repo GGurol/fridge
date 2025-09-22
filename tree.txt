@@ -1,0 +1,155 @@
+.
+├── backend
+│   ├── alembic
+│   │   ├── env.py
+│   │   ├── README
+│   │   ├── script.py.mako
+│   │   └── versions
+│   │       └── 83697dcbef8a_init.py
+│   ├── alembic.ini
+│   ├── app
+│   │   ├── api
+│   │   │   ├── deps.py
+│   │   │   ├── __init__.py
+│   │   │   ├── main.py
+│   │   │   └── routes
+│   │   │       ├── families.py
+│   │   │       ├── __init__.py
+│   │   │       ├── lists.py
+│   │   │       ├── login.py
+│   │   │       ├── ping.py
+│   │   │       ├── tasks.py
+│   │   │       └── users.py
+│   │   ├── check_db_connection.py
+│   │   ├── config.py
+│   │   ├── core
+│   │   │   ├── crud.py
+│   │   │   ├── db.py
+│   │   │   ├── __init__.py
+│   │   │   ├── models.py
+│   │   │   ├── security.py
+│   │   │   └── utils.py
+│   │   ├── init_db.py
+│   │   ├── __init__.py
+│   │   └── main.py
+│   ├── Dockerfile
+│   ├── poetry.lock
+│   ├── pyproject.toml
+│   ├── README.md
+│   ├── scripts
+│   │   ├── format.sh
+│   │   ├── lint.sh
+│   │   ├── setup-db.sh
+│   │   └── test.sh
+│   └── tests
+│       ├── api
+│       │   ├── __init__.py
+│       │   └── routes
+│       │       ├── __init__.py
+│       │       ├── test_families.py
+│       │       ├── test_login.py
+│       │       ├── test_tasks.py
+│       │       └── test_users.py
+│       ├── conftest.py
+│       ├── crud
+│       │   ├── __init__.py
+│       │   ├── test_familiy.py
+│       │   ├── test_list.py
+│       │   ├── test_task.py
+│       │   └── test_user.py
+│       ├── __init__.py
+│       └── utils.py
+├── docker-compose.dev-db.yml
+├── docker-compose.yml
+├── frontend
+│   ├── Dockerfile
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── nginx-backend-not-found.conf
+│   ├── nginx.conf
+│   ├── openapi.json
+│   ├── openapi-ts.config.ts
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── playwright.config.ts
+│   ├── postcss.config.js
+│   ├── public
+│   │   └── fridge.svg
+│   ├── README.md
+│   ├── src
+│   │   ├── assets
+│   │   │   └── react.svg
+│   │   ├── client
+│   │   │   ├── core
+│   │   │   │   ├── ApiError.ts
+│   │   │   │   ├── ApiRequestOptions.ts
+│   │   │   │   ├── ApiResult.ts
+│   │   │   │   ├── CancelablePromise.ts
+│   │   │   │   ├── OpenAPI.ts
+│   │   │   │   └── request.ts
+│   │   │   ├── index.ts
+│   │   │   ├── sdk.gen.ts
+│   │   │   └── types.gen.ts
+│   │   ├── components
+│   │   │   ├── Common
+│   │   │   │   ├── NotFound.tsx
+│   │   │   │   └── Spinner.tsx
+│   │   │   ├── Lists
+│   │   │   │   ├── AddListMenu.tsx
+│   │   │   │   ├── AddList.tsx
+│   │   │   │   ├── DeleteList.tsx
+│   │   │   │   ├── EditList.tsx
+│   │   │   │   └── SettingsMenu.tsx
+│   │   │   └── Tasks
+│   │   │       ├── AddTask.tsx
+│   │   │       ├── EditTask.tsx
+│   │   │       └── Task.tsx
+│   │   ├── hooks
+│   │   │   └── useAuth.tsx
+│   │   ├── index.css
+│   │   ├── main.tsx
+│   │   ├── routes
+│   │   │   ├── _layout
+│   │   │   │   ├── index.tsx
+│   │   │   │   └── lists
+│   │   │   │       └── $listId.tsx
+│   │   │   ├── _layout.tsx
+│   │   │   ├── login.tsx
+│   │   │   ├── __root.tsx
+│   │   │   ├── setup.tsx
+│   │   │   └── signup.tsx
+│   │   ├── routeTree.gen.ts
+│   │   └── vite-env.d.ts
+│   ├── tailwind.config.js
+│   ├── tests
+│   │   ├── auth.setup.ts
+│   │   ├── config.ts
+│   │   ├── home.spec.ts
+│   │   ├── login.spec.ts
+│   │   ├── setup.spec.ts
+│   │   ├── sign-up.spec.ts
+│   │   ├── task.spec.ts
+│   │   └── utils
+│   │       ├── random.ts
+│   │       └── user.ts
+│   ├── tsconfig.app.json
+│   ├── tsconfig.json
+│   ├── tsconfig.node.json
+│   └── vite.config.ts
+├── img
+│   ├── add-list.png
+│   ├── add-task.png
+│   ├── docs.png
+│   ├── edit-list.png
+│   ├── home.png
+│   ├── login.png
+│   ├── setup.png
+│   ├── sign-up.png
+│   └── tasks.png
+├── README.md
+├── scripts
+│   ├── generate-client.sh
+│   └── start-dev-db.sh
+└── tree.txt
+
+31 directories, 122 files

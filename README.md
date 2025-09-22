@@ -139,15 +139,6 @@ Using `poetry`, you could do it with:
 pre-commit installed at .git/hooks/pre-commit
 ```
 
-Now whenever you try to commit, e.g. with:
-
-```bash
-git commit
-```
-
-...pre-commit will run and check and format the code you are about to commit, and will ask you to add that code (stage it) with git again before committing.
-
-Then you can `git add` the modified/fixed files again and now you can commit.
 
 #### Running pre-commit hooks manually
 
@@ -164,24 +155,6 @@ eslint...................................................................Passed
 prettier.................................................................Passed
 ```
 
-## Backend Development
-
-### Requirements
-
-* [Docker](https://www.docker.com/).
-* [Poetry](https://python-poetry.org/) for Python package and environment management.
-
-From `backend/` you can install all the dependencies with:
-
-```bash
-poetry install
-```
-
-Now run the fastapi development server:
-
-```bash
-poetry run fastapi dev app/main.py
-```
 
 ### Migrations
 
@@ -218,94 +191,3 @@ The tests run with Pytest, modify and add tests to `backend/tests/`.
 
 Backend docs: [backend/README.md](./backend/README.md).
 
-## Frontend development
-
-Before you begin, ensure that you have either the Node Version Manager (nvm) or Fast Node Manager (fnm) installed on your system.
-
-* To install fnm follow the [official fnm guide](https://github.com/Schniz/fnm#installation). If you prefer nvm, you can install it using the [official nvm guide](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-* After installing either nvm or fnm, proceed to the `frontend` directory:
-
-```bash
-cd frontend
-```
-* If the Node.js version specified in the `.nvmrc` file isn't installed on your system, you can install it using the appropriate command:
-
-```bash
-# If using fnm
-fnm install
-
-# If using nvm
-nvm install
-```
-
-* Once the installation is complete, switch to the installed version:
-
-```bash
-# If using fnm
-fnm use
-
-# If using nvm
-nvm use
-```
-
-* Within the `frontend` directory, install the necessary NPM packages:
-
-```bash
-npm install
-```
-
-* And start the live server with the following `npm` script:
-
-```bash
-npm run dev
-```
-
-* Then open your browser at http://localhost:5173/.
-
-### Generate Client
-
-#### Automatically
-
-* From the top level project directory, run the script:
-
-```bash
-bash scripts/generate-client.sh
-```
-
-* Commit the changes.
-
-#### Manually
-
-* Start the backend server.
-
-* Download the OpenAPI JSON file from `http://localhost:8000/api/openapi.json` and copy it to `openapi.json` at the root of the `frontend` directory.
-
-
-* To generate the frontend client, run:
-
-```bash
-npm run generate-client
-```
-
-* Commit the changes.
-
-Notice that every time the backend changes (changing the OpenAPI schema), you should follow these steps again to update the frontend client.
-
-### Frontend testing with Playwright
-
-The frontend includes initial end-to-end tests using Playwright. To run the tests, you need to have the development database running. Start the db with the following command:
-
-```bash
-bash scripts/start-dev-db.sh
-```
-
-Then, you can run the tests with the following command:
-
-```bash
-npm run test
-```
-
-To update the tests, navigate to the tests directory and modify the existing test files or add new ones as needed.
-
-For more information on writing and running Playwright tests, refer to the official [Playwright documentation](https://playwright.dev/docs/intro).
